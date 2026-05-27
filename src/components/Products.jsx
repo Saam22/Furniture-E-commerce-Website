@@ -1,67 +1,85 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import ProductCard from './ProductCard';
+import '../styles/Products.css';
 
 const Products = ({ products, addToCart }) => {
-  const [selectedCategory, setSelectedCategory] = useState('الكل');
-  
-  const categories = ['الكل', 'غرف معيشة', 'غرف نوم', 'غرف طعام', 'مكاتب', 'ديكور'];
+  const [sortBy, setSortBy] = useState('default');
+  const [viewMode, setViewMode] = useState('grid');
 
-  const filteredProducts = selectedCategory === 'الكل'
-    ? products
-    : products.filter(product => product.category === selectedCategory);
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'rating':
+        return b.rating - a.rating;
+      case 'newest':
+        return b.isNew - a.isNew;
+      default:
+        return 0;
+    }
+  });
 
   return (
-    <section className="products" id="المنتجات">
+    <section className="products-section" id="products">
       <div className="container">
-        <motion.div
-          className="section-header"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2>منتجاتنا المميزة</h2>
-          <p>اكتشف مجموعة واسعة من الأثاث العصري</p>
-        </motion.div>
+        <div className="section-header">
+          <div>
+            <h2>منتجاتنا المميزة</h2>
+            <p>اكتشف مجموعة واسعة من الأثاث العصري</p>
+          </div>
+          
+          <div className="products-controls">
+            <div className="sort-control">
+              <label>ترتيب حسب:</label>
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                <option value="default">الافتراضي</option>
+                <option value="price-low">السعر: من الأقل للأعلى</option>
+                <option value="price-high">السعر: من الأعلى للأقل</option>
+                <option value="rating">الأعلى تقييماً</option>
+                <option value="newest">الأحدث</option>
+              </select>
+            </div>
 
-        <motion.div
-          className="categories"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          {categories.map((category, index) => (
-            <motion.button
-              key={category}
-              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(category)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-            >
-              {category}
-            </motion.button>
-          ))}
-        </motion.div>
+            <div className="view-toggle">
+              <button 
+                className={viewMode === 'grid' ? 'active' : ''}
+                onClick={() => setViewMode('grid')}
+                title="عرض شبكي"
+              >
+                ▦
+              </button>
+              <button 
+                className={viewMode === 'list' ? 'active' : ''}
+                onClick={() => setViewMode('list')}
+                title="عرض قائمة"
+              >
+                ☰
+              </button>
+            </div>
+          </div>
+        </div>
 
-        <motion.div
-          className="products-grid"
-          layout
-        >
-          {filteredProducts.map((product, index) => (
+        <div className={`products-${viewMode}`}>
+          {sortedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
               addToCart={addToCart}
               index={index}
+              viewMode={viewMode}
             />
           ))}
-        </motion.div>
+        </div>
+
+        {sortedProducts.length === 0 && (
+          <div className="no-products">
+            <span className="no-products-icon">📦</span>
+            <h3>لا توجد منتجات في هذه الفئة</h3>
+            <p>جرب فئة أخرى</p>
+          </div>
+        )}
       </div>
     </section>
   );

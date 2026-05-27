@@ -1,124 +1,130 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect } from 'react';
+import '../styles/Cart.css';
 
-const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, total }) => {
+const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings }) => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const handleCheckout = () => {
+    alert('جاري تحويلك لصفحة الدفع...');
+  };
+
   return (
     <>
-      <motion.div
-        className="cart-overlay"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
-
-      <motion.div
-        className="cart-sidebar"
-        initial={{ x: -400 }}
-        animate={{ x: 0 }}
-        exit={{ x: -400 }}
-        transition={{ type: 'spring', damping: 25 }}
-      >
+      <div className="cart-overlay" onClick={onClose}></div>
+      
+      <div className="cart-sidebar">
         <div className="cart-header">
-          <h2>🛒 سلة التسوق</h2>
-          <motion.button
-            className="close-btn"
-            onClick={onClose}
-            whileHover={{ scale: 1.1, rotate: 90 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            ✕
-          </motion.button>
+          <h2>
+            <span>🛒</span>
+            <span>سلة التسوق</span>
+          </h2>
+          <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
-        <div className="cart-items">
-          {cartItems.length === 0 ? (
-            <motion.div
-              className="empty-cart"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <span className="empty-icon">🛒</span>
-              <p>السلة فارغة</p>
-              <span>ابدأ بإضافة منتجات رائعة!</span>
-            </motion.div>
-          ) : (
-            cartItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                className="cart-item"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 50 }}
-                transition={{ delay: index * 0.1 }}
-                layout
-              >
-                <img src={item.image} alt={item.name} />
-                
-                <div className="cart-item-info">
-                  <h4>{item.name}</h4>
-                  <p className="cart-item-price">{item.price} ر.س</p>
+        {cartItems.length === 0 ? (
+          <div className="empty-cart">
+            <span className="empty-icon">🛒</span>
+            <h3>السلة فارغة</h3>
+            <p>ابدأ بإضافة منتجات رائعة!</p>
+            <button className="btn btn-primary" onClick={onClose}>
+              تسوق الآن
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-items">
+              {cartItems.map((item) => (
+                <div key={item.id} className="cart-item">
+                  <img src={item.image} alt={item.name} />
                   
-                  <div className="quantity-controls">
-                    <motion.button
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.8 }}
-                    >
-                      -
-                    </motion.button>
-                    <span>{item.quantity}</span>
-                    <motion.button
-                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.8 }}
-                    >
-                      +
-                    </motion.button>
+                  <div className="cart-item-info">
+                    <h4>{item.name}</h4>
+                    <p className="item-category">{item.category}</p>
+                    
+                    <div className="item-price-row">
+                      <span className="item-price">{item.price.toLocaleString()} ر.س</span>
+                      {item.originalPrice && (
+                        <span className="item-original-price">
+                          {item.originalPrice.toLocaleString()} ر.س
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="quantity-controls">
+                      <button 
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity === 1}
+                      >
+                        −
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                        +
+                      </button>
+                    </div>
                   </div>
+
+                  <button 
+                    className="remove-btn"
+                    onClick={() => removeFromCart(item.id)}
+                    title="حذف"
+                  >
+                    🗑️
+                  </button>
                 </div>
-
-                <motion.button
-                  className="remove-btn"
-                  onClick={() => removeFromCart(item.id)}
-                  whileHover={{ scale: 1.2, color: '#ff4444' }}
-                  whileTap={{ scale: 0.8 }}
-                >
-                  🗑️
-                </motion.button>
-              </motion.div>
-            ))
-          )}
-        </div>
-
-        {cartItems.length > 0 && (
-          <motion.div
-            className="cart-footer"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="cart-total">
-              <span>المجموع:</span>
-              <motion.span
-                className="total-price"
-                key={total}
-                initial={{ scale: 1.2 }}
-                animate={{ scale: 1 }}
-              >
-                {total.toFixed(2)} ر.س
-              </motion.span>
+              ))}
             </div>
 
-            <motion.button
-              className="checkout-btn"
-              whileHover={{ scale: 1.02, boxShadow: '0 10px 30px rgba(255,107,53,0.3)' }}
-              whileTap={{ scale: 0.98 }}
-            >
-              إتمام الطلب 💳
-            </motion.button>
-          </motion.div>
+            <div className="cart-summary">
+              <div className="summary-row">
+                <span>المجموع الفرعي:</span>
+                <span>{(total + savings).toLocaleString()} ر.س</span>
+              </div>
+              
+              {savings > 0 && (
+                <div className="summary-row savings">
+                  <span>التوفير:</span>
+                  <span>- {savings.toLocaleString()} ر.س</span>
+                </div>
+              )}
+
+              <div className="summary-row">
+                <span>الشحن:</span>
+                <span>{total >= 1000 ? 'مجاني' : '50 ر.س'}</span>
+              </div>
+
+              <div className="summary-total">
+                <span>المجموع النهائي:</span>
+                <span>{(total + (total >= 1000 ? 0 : 50)).toLocaleString()} ر.س</span>
+              </div>
+
+              <button className="checkout-btn" onClick={handleCheckout}>
+                <span>إتمام الطلب</span>
+                <span>💳</span>
+              </button>
+
+              <button className="clear-cart-btn" onClick={clearCart}>
+                تفريغ السلة
+              </button>
+
+              <div className="payment-methods">
+                <span>طرق الدفع المتاحة:</span>
+                <div className="methods">
+                  <span>💳</span>
+                  <span>🏦</span>
+                  <span>📱</span>
+                  <span>💰</span>
+                </div>
+              </div>
+            </div>
+          </>
         )}
-      </motion.div>
+      </div>
     </>
   );
 };

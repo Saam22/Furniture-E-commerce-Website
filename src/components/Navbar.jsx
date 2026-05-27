@@ -1,92 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import '../styles/Navbar.css';
 
 const Navbar = ({ cartItemsCount, onCartClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeLink, setActiveLink] = useState('home');
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const navLinks = [
+    { id: 'home', name: 'الرئيسية', href: '#home' },
+    { id: 'products', name: 'المنتجات', href: '#products' },
+    { id: 'offers', name: 'العروض', href: '#offers' },
+    { id: 'about', name: 'من نحن', href: '#about' },
+    { id: 'contact', name: 'اتصل بنا', href: '#contact' }
+  ];
+
   return (
-    <motion.nav
-      className={`navbar ${isScrolled ? 'scrolled' : ''}`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="nav-content">
-          <motion.div
-            className="logo"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <div className="logo">
             <span className="logo-icon">🛋️</span>
-            <span className="logo-text">الأثاث العصري</span>
-          </motion.div>
+            <div className="logo-text">
+              <h1>الأثاث العصري</h1>
+              <p>Modern Furniture</p>
+            </div>
+          </div>
 
           <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
-            {['الرئيسية', 'المنتجات', 'العروض', 'من نحن', 'اتصل بنا'].map((item, index) => (
-              <motion.li
-                key={item}
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-              >
-                <a href={`#${item}`}>{item}</a>
-              </motion.li>
+            {navLinks.map((link) => (
+              <li key={link.id}>
+                <a 
+                  href={link.href}
+                  className={activeLink === link.id ? 'active' : ''}
+                  onClick={() => {
+                    setActiveLink(link.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  {link.name}
+                </a>
+              </li>
             ))}
           </ul>
 
           <div className="nav-actions">
-            <motion.button
-              className="icon-btn search-btn"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              🔍
-            </motion.button>
+            <button className="icon-btn search-btn" title="بحث">
+              <span>🔍</span>
+            </button>
 
-            <motion.button
-              className="icon-btn cart-btn"
+            <button 
+              className="icon-btn cart-btn" 
               onClick={onCartClick}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              title="السلة"
             >
-              🛒
+              <span>🛒</span>
               {cartItemsCount > 0 && (
-                <motion.span
-                  className="cart-badge"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 500 }}
-                >
-                  {cartItemsCount}
-                </motion.span>
+                <span className="cart-badge">{cartItemsCount}</span>
               )}
-            </motion.button>
+            </button>
 
-            <motion.button
-              className="hamburger"
+            <button className="icon-btn user-btn" title="حسابي">
+              <span>👤</span>
+            </button>
+
+            <button
+              className={`hamburger ${isMobileMenuOpen ? 'active' : ''}`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              whileTap={{ scale: 0.9 }}
             >
               <span></span>
               <span></span>
               <span></span>
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 

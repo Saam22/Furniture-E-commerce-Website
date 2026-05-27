@@ -1,93 +1,85 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 
-const ProductCard = ({ product, addToCart, index }) => {
+const ProductCard = ({ product, addToCart, index, viewMode }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(product);
-    setShowNotification(true);
-    setTimeout(() => setShowNotification(false), 2000);
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} className={i <= rating ? 'star filled' : 'star'}>
+          ★
+        </span>
+      );
+    }
+    return stars;
   };
 
   return (
-    <motion.div
-      className="product-card"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      whileHover={{ y: -10 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+    <div 
+      className={`product-card ${viewMode}`}
+      style={{ animationDelay: `${index * 0.1}s` }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="product-image">
-        <motion.img
-          src={product.image}
+        {!imageLoaded && <div className="image-loader"></div>}
+        <img 
+          src={product.image} 
           alt={product.name}
-          animate={{ scale: isHovered ? 1.1 : 1 }}
-          transition={{ duration: 0.3 }}
+          onLoad={() => setImageLoaded(true)}
+          style={{ opacity: imageLoaded ? 1 : 0 }}
         />
         
-        <motion.div
-          className="product-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <motion.button
-            className="quick-view-btn"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            👁️ معاينة سريعة
-          </motion.button>
-        </motion.div>
+        {product.isNew && <span className="product-badge new">جديد</span>}
+        {product.discount > 0 && (
+          <span className="product-badge discount">خصم {product.discount}%</span>
+        )}
 
-        <motion.span
-          className="product-badge"
-          initial={{ scale: 0, rotate: -45 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.3, type: 'spring' }}
-        >
-          جديد
-        </motion.span>
+        <div className={`product-overlay ${isHovered ? 'show' : ''}`}>
+          <button className="quick-view-btn">
+            <span>👁️</span>
+            <span>معاينة سريعة</span>
+          </button>
+          <button className="wishlist-btn">
+            <span>♡</span>
+          </button>
+        </div>
       </div>
 
       <div className="product-info">
         <span className="product-category">{product.category}</span>
-        <h3>{product.name}</h3>
-        <p className="product-description">{product.description}</p>
         
+        <h3 className="product-name">{product.name}</h3>
+        
+        <p className="product-description">{product.description}</p>
+
+        <div className="product-rating">
+          <div className="stars">{renderStars(product.rating)}</div>
+          <span className="rating-text">({product.reviews} تقييم)</span>
+        </div>
+
         <div className="product-footer">
           <div className="product-price">
-            <span className="price">{product.price} ر.س</span>
+            <span className="current-price">{product.price.toLocaleString()} ر.س</span>
+            {product.originalPrice && (
+              <span className="original-price">
+                {product.originalPrice.toLocaleString()} ر.س
+              </span>
+            )}
           </div>
-          
-          <motion.button
+
+          <button 
             className="add-to-cart-btn"
-            onClick={handleAddToCart}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => addToCart(product)}
           >
-            <span>إضافة للسلة</span>
-            <span className="cart-icon">🛒</span>
-          </motion.button>
+            <span className="btn-text">أضف للسلة</span>
+            <span className="btn-icon">🛒</span>
+          </button>
         </div>
       </div>
-
-      {showNotification && (
-        <motion.div
-          className="add-notification"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-        >
-          ✓ تمت الإضافة للسلة
-        </motion.div>
-      )}
-    </motion.div>
+    </div>
   );
 };
 
