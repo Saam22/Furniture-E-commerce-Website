@@ -1,9 +1,11 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+// ✅ احذف: import React, { useState } from 'react';
+// ✅ احذف: import { motion } from 'framer-motion';
+import '../styles/Footer.css';
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
   const [activeAccordion, setActiveAccordion] = useState(null);
+  const currentYear = new Date().getFullYear();
 
   const footerData = {
     company: {
@@ -31,7 +33,7 @@ const Footer = () => {
       links: [
         { name: 'غرف معيشة', href: '#living', icon: '🛋️' },
         { name: 'غرف نوم', href: '#bedroom', icon: '🛏️' },
-        { name: 'غرف طعام', href: '#dining', icon: '🍽️' },
+        { name: 'غرم طعام', href: '#dining', icon: '🍽️' },
         { name: 'المكاتب', href: '#office', icon: '💼' },
         { name: 'الديكور', href: '#decor', icon: '🎨' }
       ]
@@ -271,7 +273,7 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Back to top button (integrated in footer) */}
+      {/* Back to top button */}
       <button 
         className="back-to-top"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

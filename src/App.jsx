@@ -8,7 +8,15 @@ import Newsletter from './components/Newsletter';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
+
 import './App.css';
+import './styles/Navbar.css';
+import './styles/Hero.css';
+import './styles/Products.css';
+import './styles/Cart.css';
+import './styles/Newsletter.css';
+import './styles/Footer.css';
+import './styles/animations.css';
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -17,20 +25,21 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '' });
 
-  // Load cart from localStorage
   useEffect(() => {
     const savedCart = localStorage.getItem('furnitureCart');
     if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error loading cart:', error);
+      }
     }
   }, []);
 
-  // Save cart to localStorage
   useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Scroll to top button visibility
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.pageYOffset > 400);
@@ -39,7 +48,6 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Add to cart
   const addToCart = (product) => {
     const existingItem = cartItems.find(item => item.id === product.id);
     
@@ -58,13 +66,11 @@ function App() {
     setIsCartOpen(true);
   };
 
-  // Remove from cart
   const removeFromCart = (productId) => {
     setCartItems(cartItems.filter(item => item.id !== productId));
     showNotification('تم حذف المنتج من السلة');
   };
 
-  // Update quantity
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity === 0) {
       removeFromCart(productId);
@@ -77,25 +83,21 @@ function App() {
     }
   };
 
-  // Clear cart
   const clearCart = () => {
     setCartItems([]);
     showNotification('تم تفريغ السلة');
   };
 
-  // Calculate total
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  // Calculate savings
   const calculateSavings = () => {
     return cartItems.reduce((total, item) => 
       total + ((item.originalPrice - item.price) * item.quantity), 0
     );
   };
 
-  // Show notification
   const showNotification = (message) => {
     setNotification({ show: true, message });
     setTimeout(() => {
@@ -103,12 +105,10 @@ function App() {
     }, 3000);
   };
 
-  // Scroll to top
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Filter products
   const filteredProducts = selectedCategory === 'all'
     ? productsData
     : productsData.filter(product => product.category === selectedCategory);
