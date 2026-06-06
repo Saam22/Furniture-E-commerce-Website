@@ -8,165 +8,113 @@ const Hero = () => {
   const slides = [
     {
       id: 1,
-      title: 'اكتشف الأناقة في كل زاوية',
-      subtitle: 'أثاث عصري يجمع بين الفخامة والراحة لمنزل أحلامك',
-      description: 'تشكيلة واسعة من أفضل الماركات العالمية',
-      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&h=800&fit=crop',
-      color: '#FF6B35',
+      title: 'أثاث يخلّي بيتك أهدى وأجمل',
+      subtitle: 'قطع مختارة بعناية بتصميم عصري وخامات تعيش معاك سنين.',
+      description: 'تسوق غرف معيشة، نوم، طعام وديكور بتجربة بسيطة وسريعة.',
+      image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1600&h=1000&fit=crop',
       buttonText: 'تسوق الآن',
-      tag: 'جديد'
+      tag: 'تشكيلة الموسم'
     },
     {
       id: 2,
-      title: 'تصاميم فاخرة لمنزل أحلامك',
-      subtitle: 'جودة عالية وأسعار تنافسية مع ضمان شامل',
-      description: 'خصومات تصل إلى 50% على مجموعة مختارة',
-      image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1200&h=800&fit=crop',
-      color: '#004E89',
-      buttonText: 'استكشف العروض',
-      tag: 'عرض خاص'
+      title: 'تفاصيل فاخرة بدون مبالغة',
+      subtitle: 'تصميمات عملية تناسب البيوت الحديثة والمساحات المختلفة.',
+      description: 'خصومات تصل إلى 50% على مجموعة مختارة لفترة محدودة.',
+      image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1600&h=1000&fit=crop',
+      buttonText: 'شاهد العروض',
+      tag: 'عروض خاصة'
     },
     {
       id: 3,
-      title: 'راحتك هي أولويتنا',
-      subtitle: 'خدمة توصيل سريعة وآمنة لجميع أنحاء المملكة',
-      description: 'شحن مجاني للطلبات فوق 1000 ريال',
-      image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=1200&h=800&fit=crop',
-      color: '#8B4513',
-      buttonText: 'اطلب الآن',
-      tag: 'شحن مجاني'
+      title: 'توصيل سريع وتركيب موثوق',
+      subtitle: 'نجهز طلبك بعناية ونوصله لباب البيت في الموعد المناسب.',
+      description: 'شحن مجاني للطلبات فوق 1000 ريال وضمان جودة لمدة سنتين.',
+      image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=1600&h=1000&fit=crop',
+      buttonText: 'ابدأ الطلب',
+      tag: 'خدمة متكاملة'
     }
   ];
 
   const stats = [
-    {
-      icon: '🛋️',
-      number: '500+',
-      label: 'منتج متنوع',
-      color: '#FF6B35'
-    },
-    {
-      icon: '😊',
-      number: '5000+',
-      label: 'عميل سعيد',
-      color: '#F7B801'
-    },
-    {
-      icon: '🏆',
-      number: '50+',
-      label: 'علامة تجارية',
-      color: '#004E89'
-    },
-    {
-      icon: '⭐',
-      number: '4.8',
-      label: 'تقييم العملاء',
-      color: '#28A745'
-    }
+    { number: '500+', label: 'منتج مختار' },
+    { number: '5000+', label: 'عميل سعيد' },
+    { number: '50+', label: 'علامة تجارية' },
+    { number: '4.8', label: 'تقييم العملاء' }
   ];
 
   useEffect(() => {
-    if (!isPaused) {
-      const timer = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length);
-      }, 5000);
-      return () => clearInterval(timer);
-    }
+    if (isPaused) return undefined;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5200);
+    return () => clearInterval(timer);
   }, [isPaused, slides.length]);
 
-  const goToSlide = (index) => {
-    setCurrentSlide(index);
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <section 
-      className="hero" 
+    <section
+      className="hero"
       id="home"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div className="hero-slider">
         {slides.map((slide, index) => (
-          <div
-            key={slide.id}
-            className={`hero-slide ${index === currentSlide ? 'active' : ''}`}
-            style={{ '--slide-color': slide.color }}
-          >
+          <div key={slide.id} className={`hero-slide ${index === currentSlide ? 'active' : ''}`}>
             <div className="hero-background">
-              <img src={slide.image} alt={slide.title} loading="lazy" />
+              <img src={slide.image} alt={slide.title} />
               <div className="hero-overlay"></div>
-              <div className="hero-pattern"></div>
             </div>
 
             <div className="container">
               <div className="hero-content">
                 <div className="hero-text">
                   <span className="hero-tag">{slide.tag}</span>
-                  
-                  <h1 className="hero-title">
-                    {slide.title}
-                  </h1>
-                  
-                  <p className="hero-subtitle">
-                    {slide.subtitle}
-                  </p>
-                  
-                  <p className="hero-description">
-                    {slide.description}
-                  </p>
+                  <h1 className="hero-title">{slide.title}</h1>
+                  <p className="hero-subtitle">{slide.subtitle}</p>
+                  <p className="hero-description">{slide.description}</p>
 
                   <div className="hero-buttons">
-                    <button className="btn btn-primary">
+                    <a className="btn btn-primary" href="#products">
                       <span>{slide.buttonText}</span>
-                      <span className="btn-icon">→</span>
-                    </button>
-                    <button className="btn btn-secondary">
-                      <span>استكشف المزيد</span>
+                      <span className="btn-icon">←</span>
+                    </a>
+                    <a className="btn btn-secondary" href="#products">
+                      <span>استكشف المنتجات</span>
                       <span className="btn-icon">↓</span>
-                    </button>
+                    </a>
                   </div>
 
                   <div className="hero-features">
                     <div className="feature">
-                      <span className="feature-icon">🚚</span>
+                      <span className="feature-icon">01</span>
                       <div className="feature-text">
                         <h4>شحن مجاني</h4>
-                        <p>للطلبات فوق 1000 ر.س</p>
+                        <p>للطلبات فوق 1000 ريال</p>
                       </div>
                     </div>
                     <div className="feature">
-                      <span className="feature-icon">✓</span>
+                      <span className="feature-icon">02</span>
                       <div className="feature-text">
-                        <h4>ضمان الجودة</h4>
-                        <p>ضمان لمدة سنتين</p>
+                        <h4>ضمان سنتين</h4>
+                        <p>على المنتجات المختارة</p>
                       </div>
                     </div>
                     <div className="feature">
-                      <span className="feature-icon">💳</span>
+                      <span className="feature-icon">03</span>
                       <div className="feature-text">
                         <h4>دفع آمن</h4>
-                        <p>طرق دفع متعددة</p>
+                        <p>طرق دفع مرنة ومعتمدة</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="hero-stats">
-                  {stats.map((stat, idx) => (
-                    <div 
-                      key={idx} 
-                      className="stat-card"
-                      style={{ '--stat-color': stat.color }}
-                    >
-                      <span className="stat-icon">{stat.icon}</span>
+                  {stats.map((stat) => (
+                    <div key={stat.label} className="stat-card">
                       <h3 className="stat-number">{stat.number}</h3>
                       <p className="stat-label">{stat.label}</p>
                     </div>
@@ -179,35 +127,18 @@ const Hero = () => {
       </div>
 
       <div className="slider-controls">
-        <button className="slider-arrow prev" onClick={prevSlide}>
-          <span>←</span>
-        </button>
-        
+        <button className="slider-arrow" onClick={prevSlide} aria-label="الشريحة السابقة">›</button>
         <div className="slider-dots">
           {slides.map((_, index) => (
             <button
               key={index}
               className={`dot ${index === currentSlide ? 'active' : ''}`}
-              onClick={() => goToSlide(index)}
+              onClick={() => setCurrentSlide(index)}
               aria-label={`الذهاب للشريحة ${index + 1}`}
             />
           ))}
         </div>
-
-        <button className="slider-arrow next" onClick={nextSlide}>
-          <span>→</span>
-        </button>
-      </div>
-
-      <div className="scroll-indicator">
-        <span className="scroll-text">انزل لاستكشاف المنتجات</span>
-        <span className="scroll-arrow">↓</span>
-      </div>
-
-      <div className="hero-decorations">
-        <div className="decoration decoration-1"></div>
-        <div className="decoration decoration-2"></div>
-        <div className="decoration decoration-3"></div>
+        <button className="slider-arrow" onClick={nextSlide} aria-label="الشريحة التالية">‹</button>
       </div>
     </section>
   );

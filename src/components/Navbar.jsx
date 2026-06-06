@@ -7,9 +7,7 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
   const [activeLink, setActiveLink] = useState('home');
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -17,27 +15,27 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
   const navLinks = [
     { id: 'home', name: 'الرئيسية', href: '#home' },
     { id: 'products', name: 'المنتجات', href: '#products' },
-    { id: 'offers', name: 'العروض', href: '#offers' },
-    { id: 'about', name: 'من نحن', href: '#about' },
-    { id: 'contact', name: 'اتصل بنا', href: '#contact' }
+    { id: 'offers', name: 'العروض', href: '#products' },
+    { id: 'about', name: 'آراء العملاء', href: '#testimonials' },
+    { id: 'contact', name: 'تواصل معنا', href: '#contact' }
   ];
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="nav-content">
-          <div className="logo">
-            <span className="logo-icon">🛋️</span>
+          <a className="logo" href="#home" aria-label="العودة للرئيسية">
+            <span className="logo-mark">MF</span>
             <div className="logo-text">
               <h1>الأثاث العصري</h1>
               <p>Modern Furniture</p>
             </div>
-          </div>
+          </a>
 
           <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
             {navLinks.map((link) => (
               <li key={link.id}>
-                <a 
+                <a
                   href={link.href}
                   className={activeLink === link.id ? 'active' : ''}
                   onClick={() => {
@@ -52,28 +50,19 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
           </ul>
 
           <div className="nav-actions">
-            <button className="icon-btn search-btn" title="بحث">
-              <span>🔍</span>
+            <button className="icon-btn" title="بحث" aria-label="بحث">
+              <span>⌕</span>
             </button>
 
-            <button 
-              className="icon-btn cart-btn" 
-              onClick={onCartClick}
-              title="السلة"
-            >
-              <span>🛒</span>
-              {cartItemsCount > 0 && (
-                <span className="cart-badge">{cartItemsCount}</span>
-              )}
-            </button>
-
-            <button className="icon-btn user-btn" title="حسابي">
-              <span>👤</span>
+            <button className="icon-btn cart-btn" onClick={onCartClick} title="السلة" aria-label="السلة">
+              <span>◱</span>
+              {cartItemsCount > 0 && <span className="cart-badge">{cartItemsCount}</span>}
             </button>
 
             <button
               className={`hamburger ${isMobileMenuOpen ? 'active' : ''}`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="فتح القائمة"
             >
               <span></span>
               <span></span>

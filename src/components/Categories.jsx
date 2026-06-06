@@ -8,20 +8,18 @@ const Categories = ({ selectedCategory, onSelectCategory }) => {
       <div className="container">
         <div className="section-header">
           <h2>تصفح حسب الفئة</h2>
-          <p>اختر الفئة المناسبة لك</p>
+          <p>اختار نوع الأثاث المناسب لمساحتك وذوقك.</p>
         </div>
 
         <div className="categories-grid">
-          {categories.map((category, index) => (
+          {categories.map((category) => (
             <button
               key={category.id}
               className={`category-card ${selectedCategory === category.id ? 'active' : ''}`}
               onClick={() => onSelectCategory(category.id)}
-              style={{ animationDelay: `${index * 0.1}s` }}
             >
               <span className="category-icon">{category.icon}</span>
               <h3>{category.name}</h3>
-              <span className="category-arrow">→</span>
             </button>
           ))}
         </div>

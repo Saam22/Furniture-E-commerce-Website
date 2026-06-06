@@ -41,46 +41,46 @@ function App() {
   }, [cartItems]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.pageYOffset > 400);
-    };
+    const handleScroll = () => setShowScrollTop(window.pageYOffset > 400);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const showNotification = (message) => {
+    setNotification({ show: true, message });
+    setTimeout(() => setNotification({ show: false, message: '' }), 3000);
+  };
+
   const addToCart = (product) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-    
+    const existingItem = cartItems.find((item) => item.id === product.id);
+
     if (existingItem) {
-      setCartItems(cartItems.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-      showNotification('تمت زيادة الكمية في السلة ✓');
+      setCartItems(cartItems.map((item) => (
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      )));
+      showNotification('تمت زيادة الكمية في السلة');
     } else {
       setCartItems([...cartItems, { ...product, quantity: 1 }]);
-      showNotification('تمت الإضافة للسلة بنجاح ✓');
+      showNotification('تمت الإضافة للسلة بنجاح');
     }
-    
+
     setIsCartOpen(true);
   };
 
   const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter(item => item.id !== productId));
+    setCartItems(cartItems.filter((item) => item.id !== productId));
     showNotification('تم حذف المنتج من السلة');
   };
 
   const updateQuantity = (productId, newQuantity) => {
     if (newQuantity === 0) {
       removeFromCart(productId);
-    } else {
-      setCartItems(cartItems.map(item =>
-        item.id === productId
-          ? { ...item, quantity: newQuantity }
-          : item
-      ));
+      return;
     }
+
+    setCartItems(cartItems.map((item) => (
+      item.id === productId ? { ...item, quantity: newQuantity } : item
+    )));
   };
 
   const clearCart = () => {
@@ -88,54 +88,33 @@ function App() {
     showNotification('تم تفريغ السلة');
   };
 
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
+  const calculateTotal = () => cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
-  const calculateSavings = () => {
-    return cartItems.reduce((total, item) => 
-      total + ((item.originalPrice - item.price) * item.quantity), 0
-    );
-  };
-
-  const showNotification = (message) => {
-    setNotification({ show: true, message });
-    setTimeout(() => {
-      setNotification({ show: false, message: '' });
-    }, 3000);
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const calculateSavings = () => cartItems.reduce((total, item) => (
+    total + ((item.originalPrice - item.price) * item.quantity)
+  ), 0);
 
   const filteredProducts = selectedCategory === 'all'
     ? productsData
-    : productsData.filter(product => product.category === selectedCategory);
+    : productsData.filter((product) => product.category === selectedCategory);
 
   return (
     <div className="App">
-      <Navbar 
+      <Navbar
         cartItemsCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         onCartClick={() => setIsCartOpen(true)}
       />
-      
+
       <Hero />
-      
-      <Categories 
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-      
-      <Products 
-        products={filteredProducts}
-        addToCart={addToCart}
-      />
-      
+
+      <Categories selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+
+      <Products products={filteredProducts} addToCart={addToCart} />
+
       <Testimonials />
-      
+
       <Newsletter />
-      
+
       <Footer />
 
       {isCartOpen && (
@@ -151,16 +130,12 @@ function App() {
       )}
 
       {showScrollTop && (
-        <button className="scroll-to-top" onClick={scrollToTop}>
+        <button className="scroll-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <span>↑</span>
         </button>
       )}
 
-      {notification.show && (
-        <div className="notification show">
-          {notification.message}
-        </div>
-      )}
+      {notification.show && <div className="notification show">{notification.message}</div>}
     </div>
   );
 }

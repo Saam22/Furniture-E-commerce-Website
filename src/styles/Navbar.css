@@ -1,176 +1,143 @@
 .navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-sm);
+  inset: 0 0 auto;
   z-index: 1000;
+  background: rgba(255, 250, 244, 0.82);
+  border-bottom: 1px solid rgba(232, 222, 210, 0.8);
+  backdrop-filter: blur(18px);
   transition: var(--transition);
-  animation: fadeInDown 0.5s ease-out;
 }
 
 .navbar.scrolled {
-  box-shadow: var(--shadow-md);
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(255, 250, 244, 0.96);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-content {
+  min-height: 76px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem 0;
-  gap: 2rem;
+  justify-content: space-between;
+  gap: 1.5rem;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  cursor: pointer;
-  transition: var(--transition);
+  text-decoration: none;
+  color: var(--dark-color);
 }
 
-.logo:hover {
-  transform: scale(1.05);
-}
-
-.logo-icon {
-  font-size: 2.5rem;
-  animation: bounce 2s infinite;
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: var(--secondary-color);
+  color: var(--white);
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .logo-text h1 {
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 900;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.25rem;
+  line-height: 1.2;
 }
 
 .logo-text p {
-  font-size: 0.75rem;
   color: var(--gray);
-  font-weight: 500;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  line-height: 1.2;
 }
 
 .nav-links {
   display: flex;
   list-style: none;
-  gap: 2.5rem;
   align-items: center;
+  gap: 0.35rem;
 }
 
-.nav-links li {
-  position: relative;
-}
-
-.nav-links li a {
+.nav-links a {
   color: var(--dark-color);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-weight: 800;
   transition: var(--transition);
-  position: relative;
-  padding: 0.5rem 0;
 }
 
-.nav-links li a::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  transition: var(--transition);
-  border-radius: 2px;
-}
-
-.nav-links li a:hover::after,
-.nav-links li a.active::after {
-  width: 100%;
-}
-
-.nav-links li a:hover {
-  color: var(--primary-color);
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--primary-dark);
+  background: rgba(184, 107, 69, 0.1);
 }
 
 .nav-actions {
   display: flex;
-  gap: 0.75rem;
   align-items: center;
+  gap: 0.55rem;
 }
 
 .icon-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
   position: relative;
-  padding: 0.5rem;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--secondary-color);
+  cursor: pointer;
   transition: var(--transition);
-  width: 45px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.25rem;
 }
 
 .icon-btn:hover {
-  background: var(--light-color);
-  transform: scale(1.1);
-}
-
-.icon-btn:active {
-  transform: scale(0.95);
+  transform: translateY(-2px);
+  border-color: rgba(184, 107, 69, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 
 .cart-badge {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background: linear-gradient(135deg, var(--danger), #ff6b9d);
-  color: var(--white);
-  border-radius: 50%;
-  width: 22px;
+  top: -7px;
+  right: -7px;
+  min-width: 22px;
   height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--primary-color);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 900;
   border: 2px solid var(--white);
-  animation: pulse 2s infinite;
 }
 
 .hamburger {
   display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  border: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
   cursor: pointer;
-  padding: 0.5rem;
-  z-index: 1001;
+  padding: 0.6rem;
 }
 
 .hamburger span {
-  width: 28px;
-  height: 3px;
-  background: var(--dark-color);
-  border-radius: 3px;
+  display: block;
+  height: 2px;
+  background: var(--secondary-color);
+  margin: 5px 0;
   transition: var(--transition);
 }
 
 .hamburger.active span:nth-child(1) {
-  transform: rotate(45deg) translate(8px, 8px);
+  transform: rotate(45deg) translate(5px, 5px);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -178,70 +145,49 @@
 }
 
 .hamburger.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -7px);
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
-@media (max-width: 968px) {
+@media (max-width: 920px) {
   .nav-links {
     position: fixed;
-    top: 75px;
-    right: -100%;
-    flex-direction: column;
+    top: 76px;
+    right: 14px;
+    left: 14px;
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     background: var(--white);
-    width: 280px;
-    height: calc(100vh - 75px);
-    padding: 2rem;
-    box-shadow: var(--shadow-xl);
-    transition: var(--transition-slow);
-    align-items: flex-start;
-    gap: 1.5rem;
-    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
   }
 
   .nav-links.active {
-    right: 0;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
-  .nav-links li {
-    width: 100%;
-  }
-
-  .nav-links li a {
+  .nav-links a {
     display: block;
-    padding: 1rem;
-    border-radius: 10px;
-  }
-
-  .nav-links li a:hover {
-    background: var(--light-color);
   }
 
   .hamburger {
-    display: flex;
+    display: block;
   }
 }
 
-@media (max-width: 480px) {
-  .logo-icon {
-    font-size: 2rem;
-  }
-
-  .logo-text h1 {
-    font-size: 1.25rem;
-  }
-
+@media (max-width: 520px) {
   .logo-text p {
-    font-size: 0.7rem;
+    display: none;
   }
 
-  .icon-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.3rem;
-  }
-
-  .nav-links {
-    width: 100%;
-    right: -100%;
+  .icon-btn:first-child {
+    display: none;
   }
 }

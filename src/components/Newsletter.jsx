@@ -4,188 +4,91 @@ import '../styles/Newsletter.css';
 const Newsletter = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [status, setStatus] = useState(''); // '', 'loading', 'success', 'error'
+  const [status, setStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validation
+
     if (!name.trim()) {
       setStatus('error');
-      setErrorMessage('الرجاء إدخال اسمك');
-      return;
-    }
-
-    if (!email.trim()) {
-      setStatus('error');
-      setErrorMessage('الرجاء إدخال بريدك الإلكتروني');
+      setErrorMessage('اكتب اسمك من فضلك');
       return;
     }
 
     if (!validateEmail(email)) {
       setStatus('error');
-      setErrorMessage('الرجاء إدخال بريد إلكتروني صحيح');
+      setErrorMessage('اكتب بريد إلكتروني صحيح');
       return;
     }
 
     setStatus('loading');
     setErrorMessage('');
-    
-    // Simulate API call
+
     setTimeout(() => {
       setStatus('success');
       setEmail('');
       setName('');
-      
-      setTimeout(() => {
-        setStatus('');
-      }, 5000);
-    }, 1500);
+      setTimeout(() => setStatus(''), 4500);
+    }, 900);
   };
 
   const benefits = [
-    {
-      icon: '🎁',
-      title: 'عروض حصرية',
-      description: 'احصل على خصومات خاصة للمشتركين فقط'
-    },
-    {
-      icon: '🆕',
-      title: 'منتجات جديدة',
-      description: 'كن أول من يعرف عن المنتجات الجديدة'
-    },
-    {
-      icon: '💰',
-      title: 'خصومات خاصة',
-      description: 'وفر حتى 30% على مشترياتك'
-    },
-    {
-      icon: '📱',
-      title: 'نصائح وإرشادات',
-      description: 'احصل على نصائح لتنسيق منزلك'
-    }
+    { title: 'عروض قبل الجميع', description: 'خصومات مختارة للمشتركين فقط.' },
+    { title: 'منتجات جديدة', description: 'تعرف على القطع الجديدة أول ما تنزل.' },
+    { title: 'أفكار للبيت', description: 'نصائح بسيطة لتنسيق المساحات.' }
   ];
 
   return (
     <section className="newsletter-section">
-      <div className="newsletter-background">
-        <div className="newsletter-shape shape-1"></div>
-        <div className="newsletter-shape shape-2"></div>
-        <div className="newsletter-shape shape-3"></div>
-      </div>
-
       <div className="container">
         <div className="newsletter-wrapper">
           <div className="newsletter-content">
             <div className="newsletter-header">
-              <div className="newsletter-icon-wrapper">
-                <span className="newsletter-icon">📧</span>
-                <div className="icon-glow"></div>
-              </div>
-              
-              <h2 className="newsletter-title">
-                اشترك في نشرتنا البريدية
-              </h2>
-              
+              <span className="newsletter-kicker">النشرة البريدية</span>
+              <h2 className="newsletter-title">خليك قريب من أحدث العروض</h2>
               <p className="newsletter-description">
-                احصل على آخر العروض والخصومات الحصرية مباشرة في بريدك الإلكتروني
+                ابعتلنا بريدك وهنوصلك بتحديثات مختصرة عن الخصومات والقطع الجديدة.
               </p>
             </div>
 
             <form className="newsletter-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <div className="input-wrapper">
-                  <span className="input-icon">👤</span>
-                  <input
-                    type="text"
-                    placeholder="الاسم الكامل"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    disabled={status === 'loading' || status === 'success'}
-                    className={status === 'error' && !name ? 'error' : ''}
-                  />
-                </div>
-
-                <div className="input-wrapper">
-                  <span className="input-icon">✉️</span>
-                  <input
-                    type="email"
-                    placeholder="البريد الإلكتروني"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={status === 'loading' || status === 'success'}
-                    className={status === 'error' && !validateEmail(email) ? 'error' : ''}
-                  />
-                </div>
+                <input
+                  type="text"
+                  placeholder="الاسم الكامل"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={status === 'loading' || status === 'success'}
+                />
+                <input
+                  type="email"
+                  placeholder="البريد الإلكتروني"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={status === 'loading' || status === 'success'}
+                />
               </div>
 
-              <button 
-                type="submit" 
-                className={`subscribe-btn ${status}`}
-                disabled={status === 'loading' || status === 'success'}
-              >
-                {status === 'loading' && (
-                  <>
-                    <span className="loading-spinner"></span>
-                    <span>جاري الاشتراك...</span>
-                  </>
-                )}
-                {status === 'success' && (
-                  <>
-                    <span>✓</span>
-                    <span>تم الاشتراك بنجاح!</span>
-                  </>
-                )}
-                {status !== 'loading' && status !== 'success' && (
-                  <>
-                    <span>اشترك الآن</span>
-                    <span className="btn-arrow">→</span>
-                  </>
-                )}
+              <button type="submit" className={`subscribe-btn ${status}`} disabled={status === 'loading' || status === 'success'}>
+                {status === 'loading' && 'جاري الاشتراك...'}
+                {status === 'success' && 'تم الاشتراك بنجاح'}
+                {status !== 'loading' && status !== 'success' && 'اشترك الآن'}
               </button>
 
-              {status === 'error' && errorMessage && (
-                <div className="error-message">
-                  <span className="error-icon">⚠️</span>
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
-              {status === 'success' && (
-                <div className="success-message">
-                  <span className="success-icon">✓</span>
-                  <span>شكراً لك! تم الاشتراك بنجاح في نشرتنا البريدية</span>
-                </div>
-              )}
+              {status === 'error' && errorMessage && <div className="error-message">{errorMessage}</div>}
+              {status === 'success' && <div className="success-message">شكرا لك، تم تسجيلك في النشرة البريدية.</div>}
             </form>
 
             <div className="newsletter-benefits">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="benefit-card">
-                  <span className="benefit-icon">{benefit.icon}</span>
-                  <div className="benefit-content">
-                    <h4>{benefit.title}</h4>
-                    <p>{benefit.description}</p>
-                  </div>
+              {benefits.map((benefit) => (
+                <div key={benefit.title} className="benefit-card">
+                  <h4>{benefit.title}</h4>
+                  <p>{benefit.description}</p>
                 </div>
               ))}
-            </div>
-
-            <div className="newsletter-footer">
-              <p className="privacy-text">
-                <span className="lock-icon">🔒</span>
-                نحترم خصوصيتك. لن نشارك بياناتك مع أي طرف ثالث
-              </p>
-              <div className="subscriber-count">
-                <span className="count-icon">👥</span>
-                <span>انضم إلى أكثر من <strong>10,000</strong> مشترك</span>
-              </div>
             </div>
           </div>
         </div>
