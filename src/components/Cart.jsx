@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import '../styles/Cart.css';
 import DiscountSection from './DiscountSection';
+import DeliverySection from './DeliverySection';
 import { calculateCartDiscounts } from '../utils/discountUtils';
 
 const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings, appliedCoupon, onApplyCoupon, onRemoveCoupon, orderCount, onCheckout }) => {
+  const [delivery, setDelivery] = useState({ zoneId: 'cairo', city: 'القاهرة', cost: 0, eta: null, freeShipping: false, express: false });
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -11,9 +14,25 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
     };
   }, []);
 
-  const { discounts, totalDiscount, freeShipping, finalTotal, tier } = calculateCartDiscounts(total, appliedCoupon, orderCount);
-  const shipping = freeShipping || total >= 2000 || total === 0 ? 0 : 50;
-  const grandTotal = finalTotal + shipping;
+  const { discounts, totalDiscount, freeShipping: couponFree, finalTotal, tier } = calculateCartDiscounts(total, appliedCoupon, orderCount);
+  const freeShipping = couponFree || delivery.freeShipping || total >= 2000;
+  const shippingCost = freeShipping ? 0 : delivery.cost;
+  const grandTotal = finalTotal + shippingCost;
+
+  const handleCheckout = () => {
+    onCheckout({
+      delivery: {
+        zoneId: delivery.zoneId,
+        city: delivery.city,
+        express: delivery.express,
+        cost: shippingCost,
+        freeShipping,
+        eta: delivery.eta,
+      },
+      discountInfo: { discounts, totalDiscount, finalTotal },
+      grandTotal,
+    });
+  };
 
   return (
     <>
@@ -34,39 +53,46 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
           </div>
         ) : (
           <>
-            <div className="cart-items">
-              {cartItems.map((item) => (
-                <div key={item.id} className="cart-item">
-                  <img src={item.image} alt={item.name} />
+            <div className="cart-body">
+              <div className="cart-items">
+                {cartItems.map((item) => (
+                  <div key={item.id} className="cart-item">
+                    <img src={item.image} alt={item.name} />
 
-                  <div className="cart-item-info">
-                    <h4>{item.name}</h4>
-                    <p className="item-category">{item.category}</p>
+                    <div className="cart-item-info">
+                      <h4>{item.name}</h4>
+                      <p className="item-category">{item.category}</p>
 
-                    <div className="item-price-row">
-                      <span className="item-price">{item.price.toLocaleString()} ج.م</span>
-                      {item.originalPrice && <span className="item-original-price">{item.originalPrice.toLocaleString()} ج.م</span>}
+                      <div className="item-price-row">
+                        <span className="item-price">{item.price?.toLocaleString() ?? '0'} ج.م</span>
+                        {item.originalPrice && <span className="item-original-price">{item.originalPrice.toLocaleString()} ج.م</span>}
+                      </div>
+
+                      <div className="quantity-controls">
+                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity === 1}>−</button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                      </div>
                     </div>
 
-                    <div className="quantity-controls">
-                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity === 1}>−</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
-                    </div>
+                    <button className="remove-btn" onClick={() => removeFromCart(item.id)} title="حذف">×</button>
                   </div>
+                ))}
+              </div>
 
-                  <button className="remove-btn" onClick={() => removeFromCart(item.id)} title="حذف">×</button>
-                </div>
-              ))}
-            </div>
-
-            <div className="cart-summary">
+              <div className="cart-summary">
               <DiscountSection
                 subtotal={total}
                 appliedCoupon={appliedCoupon}
                 onApplyCoupon={onApplyCoupon}
                 onRemoveCoupon={onRemoveCoupon}
                 orderCount={orderCount}
+              />
+
+              <DeliverySection
+                total={total}
+                freeShipping={couponFree}
+                onDeliveryChange={setDelivery}
               />
 
               <div className="summary-row">
@@ -90,15 +116,15 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
 
               <div className="summary-row">
                 <span>الشحن</span>
-                <span>{shipping === 0 ? 'مجاني' : `${shipping.toLocaleString()} ج.م`}</span>
+                <span>{freeShipping ? 'مجاني' : `${(shippingCost ?? 0).toLocaleString()} ج.م`}</span>
               </div>
 
               <div className="summary-total">
                 <span>الإجمالي</span>
-                <span>{grandTotal.toLocaleString()} ج.م</span>
+                <span>{grandTotal == null || isNaN(grandTotal) ? '0' : grandTotal.toLocaleString()} ج.م</span>
               </div>
 
-              <button className="checkout-btn" onClick={onCheckout}>إتمام الطلب</button>
+              <button className="checkout-btn" onClick={handleCheckout}>إتمام الطلب</button>
               <button className="clear-cart-btn" onClick={clearCart}>تفريغ السلة</button>
 
               <div className="payment-methods">
@@ -109,6 +135,7 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                   <span>Pay</span>
                 </div>
               </div>
+            </div>
             </div>
           </>
         )}

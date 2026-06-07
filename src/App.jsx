@@ -7,8 +7,10 @@ import Cart from './components/Cart';
 import Newsletter from './components/Newsletter';
 import Testimonials from './components/Testimonials';
 import ChairDesigner from './components/ChairDesigner';
+import OrderTracking from './components/OrderTracking';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
+import { createOrder } from './utils/shippingUtils';
 
 import './App.css';
 import './styles/Navbar.css';
@@ -40,6 +42,18 @@ function App() {
 
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
+  const [orders, setOrders] = useState(() => {
+    const saved = localStorage.getItem('furnitureOrders');
+    if (!saved) return [];
+    try {
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(o => o && typeof o === 'object' && o.id);
+    } catch { return []; }
+  });
+
+  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
+
   const [orderCount, setOrderCount] = useState(() => {
     const saved = localStorage.getItem('furnitureOrderCount');
     return saved ? parseInt(saved, 10) : 0;
@@ -54,6 +68,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureOrders', JSON.stringify(orders));
+  }, [orders]);
 
   useEffect(() => {
     localStorage.setItem('furnitureOrderCount', String(orderCount));
@@ -111,8 +129,10 @@ function App() {
     showNotification('تم تفريغ السلة');
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = (checkoutInfo) => {
     if (cartItems.length === 0) return;
+    const order = createOrder(cartItems, calculateTotal(), checkoutInfo.discountInfo, checkoutInfo.delivery, checkoutInfo.grandTotal);
+    setOrders(prev => [...prev, order]);
     setOrderCount(prev => prev + 1);
     setCartItems([]);
     setAppliedCoupon(null);
@@ -166,6 +186,8 @@ function App() {
         isDarkMode={isDarkMode}
         searchQuery={searchQuery}
         onSearch={handleSearch}
+        onTrackingClick={() => setIsTrackingOpen(true)}
+        orderCount={orderCount}
       />
 
       <Hero />
@@ -199,6 +221,13 @@ function App() {
           orderCount={orderCount}
           onCheckout={handleCheckout}
         />
+      )}
+
+      {isTrackingOpen && (
+        <>
+          <div className="cart-overlay" onClick={() => setIsTrackingOpen(false)}></div>
+          <OrderTracking orders={orders} onClose={() => setIsTrackingOpen(false)} />
+        </>
       )}
 
       {showScrollTop && (

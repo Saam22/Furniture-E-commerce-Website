@@ -8,6 +8,8 @@ const Navbar = ({
   isDarkMode,
   searchQuery,
   onSearch,
+  onTrackingClick,
+  orderCount,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -131,6 +133,17 @@ const Navbar = ({
             >
               <span>{isDarkMode ? '☀' : '☾'}</span>
             </button>
+
+            {orderCount > 0 && (
+              <button
+                className="icon-btn tracking-btn"
+                onClick={onTrackingClick}
+                title="تتبع الطلبات"
+                aria-label="تتبع الطلبات"
+              >
+                <span>📦</span>
+              </button>
+            )}
 
             <button
               className="icon-btn cart-btn"
