@@ -443,3 +443,17 @@
     display: none;
   }
 }
+
+/* ===== Search Highlight ===== */
+mark.search-highlight {
+  background: rgba(215, 168, 91, 0.38);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+/* ===== Clear Search Button (Empty State) ===== */
+.clear-search-btn {
+  margin-top: 1.2rem;
+  padding: 0.75rem 1.5rem;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Categories from './components/Categories';
@@ -19,26 +19,39 @@ import './styles/Footer.css';
 import './styles/animations.css';
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('furnitureCart');
+    if (!savedCart) return [];
+    try {
+      return JSON.parse(savedCart);
+    } catch (error) {
+      console.error('Error loading cart:', error);
+      return [];
+    }
+  });
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '' });
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem('furnitureCart');
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error('Error loading cart:', error);
-      }
-    }
-  }, []);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('furnitureTheme');
+    if (savedTheme) return savedTheme === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) root.classList.add('dark');
+    else root.classList.remove('dark');
+    localStorage.setItem('furnitureTheme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.pageYOffset > 400);
@@ -53,17 +66,15 @@ function App() {
 
   const addToCart = (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
-
     if (existingItem) {
-      setCartItems(cartItems.map((item) => (
+      setCartItems(cartItems.map((item) =>
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      )));
+      ));
       showNotification('تمت زيادة الكمية في السلة');
     } else {
       setCartItems([...cartItems, { ...product, quantity: 1 }]);
       showNotification('تمت الإضافة للسلة بنجاح');
     }
-
     setIsCartOpen(true);
   };
 
@@ -77,10 +88,9 @@ function App() {
       removeFromCart(productId);
       return;
     }
-
-    setCartItems(cartItems.map((item) => (
+    setCartItems(cartItems.map((item) =>
       item.id === productId ? { ...item, quantity: newQuantity } : item
-    )));
+    ));
   };
 
   const clearCart = () => {
@@ -88,33 +98,64 @@ function App() {
     showNotification('تم تفريغ السلة');
   };
 
-  const calculateTotal = () => cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const calculateTotal = () =>
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const calculateSavings = () => cartItems.reduce((total, item) => (
-    total + ((item.originalPrice - item.price) * item.quantity)
-  ), 0);
+  const calculateSavings = () =>
+    cartItems.reduce(
+      (total, item) => total + (item.originalPrice - item.price) * item.quantity,
+      0
+    );
 
-  const filteredProducts = selectedCategory === 'all'
-    ? productsData
-    : productsData.filter((product) => product.category === selectedCategory);
+  // فلترة بالكاتيجوري + البحث معاً
+  const filteredProducts = productsData.filter((product) => {
+    const matchesCategory =
+      selectedCategory === 'all' || product.category === selectedCategory;
+    const matchesSearch =
+      searchQuery.trim() === '' ||
+      product.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+      (product.description &&
+        product.description.toLowerCase().includes(searchQuery.trim().toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
+
+  // لما المستخدم يبحث، نسكرول لقسم المنتجات
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      const productsSection = document.getElementById('products');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   return (
     <div className="App">
       <Navbar
         cartItemsCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)}
         onCartClick={() => setIsCartOpen(true)}
+        onToggleDarkMode={toggleDarkMode}
+        isDarkMode={isDarkMode}
+        searchQuery={searchQuery}
+        onSearch={handleSearch}
       />
 
       <Hero />
 
       <Categories selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
-      <Products products={filteredProducts} addToCart={addToCart} />
+      <Products
+        products={filteredProducts}
+        addToCart={addToCart}
+        searchQuery={searchQuery}
+        onClearSearch={() => setSearchQuery('')}
+      />
 
       <Testimonials />
-
       <Newsletter />
-
       <Footer />
 
       {isCartOpen && (
@@ -130,12 +171,17 @@ function App() {
       )}
 
       {showScrollTop && (
-        <button className="scroll-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <button
+          className="scroll-to-top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
           <span>↑</span>
         </button>
       )}
 
-      {notification.show && <div className="notification show">{notification.message}</div>}
+      {notification.show && (
+        <div className="notification show">{notification.message}</div>
+      )}
     </div>
   );
 }

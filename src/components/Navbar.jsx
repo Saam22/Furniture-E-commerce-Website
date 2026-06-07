@@ -1,10 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/Navbar.css';
 
-const Navbar = ({ cartItemsCount, onCartClick }) => {
+const Navbar = ({
+  cartItemsCount,
+  onCartClick,
+  onToggleDarkMode,
+  isDarkMode,
+  searchQuery,
+  onSearch,
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('home');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 40);
@@ -12,13 +21,39 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // فوكس أوتوماتيك لما السيرش يفتح
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // إغلاق السيرش بـ Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsSearchOpen(false);
+        onSearch('');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onSearch]);
+
   const navLinks = [
     { id: 'home', name: 'الرئيسية', href: '#home' },
     { id: 'products', name: 'المنتجات', href: '#products' },
     { id: 'offers', name: 'العروض', href: '#products' },
     { id: 'about', name: 'آراء العملاء', href: '#testimonials' },
-    { id: 'contact', name: 'تواصل معنا', href: '#contact' }
+    { id: 'contact', name: 'تواصل معنا', href: '#contact' },
   ];
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen((prev) => {
+      if (prev) onSearch(''); // مسح البحث عند الإغلاق
+      return !prev;
+    });
+  };
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
@@ -32,7 +67,31 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
             </div>
           </a>
 
-          <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
+          {/* شريط البحث — يظهر فوق الروابط */}
+          <div className={`search-bar-wrapper ${isSearchOpen ? 'open' : ''}`}>
+            <div className="search-bar">
+              <span className="search-icon-inline">⌕</span>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="ابحث عن أثاث..."
+                value={searchQuery}
+                onChange={(e) => onSearch(e.target.value)}
+                aria-label="بحث في المنتجات"
+              />
+              {searchQuery && (
+                <button
+                  className="search-clear-btn"
+                  onClick={() => onSearch('')}
+                  aria-label="مسح البحث"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+
+          <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''} ${isSearchOpen ? 'search-mode' : ''}`}>
             {navLinks.map((link) => (
               <li key={link.id}>
                 <a
@@ -50,13 +109,38 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
           </ul>
 
           <div className="nav-actions">
-            <button className="icon-btn" title="بحث" aria-label="بحث">
-              <span>⌕</span>
+            {/* زرار البحث */}
+            <button
+              className={`icon-btn search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
+              onClick={handleSearchToggle}
+              title="بحث"
+              aria-label="فتح البحث"
+            >
+              <span>{isSearchOpen ? '×' : '⌕'}</span>
+              {searchQuery && !isSearchOpen && (
+                <span className="search-active-dot" aria-hidden="true" />
+              )}
             </button>
 
-            <button className="icon-btn cart-btn" onClick={onCartClick} title="السلة" aria-label="السلة">
+            <button
+              className="icon-btn theme-btn"
+              onClick={onToggleDarkMode}
+              title={isDarkMode ? 'الوضع الفاتح' : 'الوضع الداكن'}
+              aria-label="تبديل الوضع"
+            >
+              <span>{isDarkMode ? '☀' : '☾'}</span>
+            </button>
+
+            <button
+              className="icon-btn cart-btn"
+              onClick={onCartClick}
+              title="السلة"
+              aria-label="السلة"
+            >
               <span>◱</span>
-              {cartItemsCount > 0 && <span className="cart-badge">{cartItemsCount}</span>}
+              {cartItemsCount > 0 && (
+                <span className="cart-badge">{cartItemsCount}</span>
+              )}
             </button>
 
             <button
@@ -69,6 +153,27 @@ const Navbar = ({ cartItemsCount, onCartClick }) => {
               <span></span>
             </button>
           </div>
+        </div>
+
+        {/* سيرش بار للموبايل — تحت الناف */}
+        <div className={`mobile-search-bar ${isSearchOpen ? 'open' : ''}`}>
+          <span className="search-icon-inline">⌕</span>
+          <input
+            type="text"
+            placeholder="ابحث عن أثاث..."
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            aria-label="بحث في المنتجات"
+          />
+          {searchQuery && (
+            <button
+              className="search-clear-btn"
+              onClick={() => onSearch('')}
+              aria-label="مسح البحث"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
     </nav>

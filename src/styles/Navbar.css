@@ -13,6 +13,15 @@
   box-shadow: var(--shadow-sm);
 }
 
+html.dark .navbar {
+  background: rgba(7, 16, 15, 0.85);
+  border-bottom-color: rgba(232, 222, 210, 0.1);
+}
+
+html.dark .navbar.scrolled {
+  background: rgba(7, 16, 15, 0.97);
+}
+
 .nav-content {
   min-height: 76px;
   display: flex;
@@ -27,6 +36,7 @@
   gap: 0.75rem;
   text-decoration: none;
   color: var(--dark-color);
+  flex-shrink: 0;
 }
 
 .logo-mark {
@@ -36,9 +46,8 @@
   display: grid;
   place-items: center;
   background: var(--secondary-color);
-  color: var(--white);
+  color: #ffffff;
   font-weight: 900;
-  letter-spacing: 0;
 }
 
 .logo-text h1 {
@@ -53,11 +62,119 @@
   line-height: 1.2;
 }
 
+/* ===================== SEARCH BAR (Desktop) ===================== */
+
+.search-bar-wrapper {
+  flex: 1;
+  max-width: 420px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.search-bar-wrapper.open {
+  max-height: 56px;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-inline {
+  position: absolute;
+  right: 0.85rem;
+  color: var(--gray);
+  font-size: 1.15rem;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.search-bar input,
+.mobile-search-bar input {
+  width: 100%;
+  padding: 0.72rem 2.4rem 0.72rem 2.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--soft-color);
+  color: var(--dark-color);
+  font-size: 0.97rem;
+  outline: none;
+  transition: var(--transition);
+  direction: rtl;
+}
+
+.search-bar input:focus,
+.mobile-search-bar input:focus {
+  border-color: var(--primary-color);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(184, 107, 69, 0.12);
+}
+
+.search-clear-btn {
+  position: absolute;
+  left: 0.6rem;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--gray);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.search-clear-btn:hover {
+  background: rgba(198, 71, 71, 0.15);
+  color: var(--danger);
+}
+
+/* ===================== MOBILE SEARCH BAR ===================== */
+
+.mobile-search-bar {
+  position: relative;
+  display: none;
+  align-items: center;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.25s ease;
+  padding: 0 0;
+}
+
+.mobile-search-bar.open {
+  max-height: 62px;
+  opacity: 1;
+  padding: 0.55rem 0 0.6rem;
+}
+
+/* ===================== NAV LINKS ===================== */
+
 .nav-links {
   display: flex;
   list-style: none;
   align-items: center;
   gap: 0.35rem;
+  transition: var(--transition);
+}
+
+/* روابط تختفي لما السيرش مفتوح على Desktop */
+@media (min-width: 921px) {
+  .nav-links.search-mode {
+    opacity: 0;
+    pointer-events: none;
+    max-width: 0;
+    overflow: hidden;
+  }
 }
 
 .nav-links a {
@@ -75,10 +192,13 @@
   background: rgba(184, 107, 69, 0.1);
 }
 
+/* ===================== NAV ACTIONS ===================== */
+
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -100,6 +220,24 @@
   box-shadow: var(--shadow-sm);
 }
 
+.icon-btn.active {
+  background: var(--secondary-color);
+  color: #ffffff;
+  border-color: var(--secondary-color);
+}
+
+/* نقطة صغيرة تدل إن في بحث نشط */
+.search-active-dot {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 2px solid var(--white);
+}
+
 .cart-badge {
   position: absolute;
   top: -7px;
@@ -109,13 +247,15 @@
   padding: 0 0.35rem;
   border-radius: 999px;
   background: var(--primary-color);
-  color: var(--white);
+  color: #ffffff;
   display: grid;
   place-items: center;
   font-size: 0.72rem;
   font-weight: 900;
   border: 2px solid var(--white);
 }
+
+/* ===================== HAMBURGER ===================== */
 
 .hamburger {
   display: none;
@@ -136,19 +276,16 @@
   transition: var(--transition);
 }
 
-.hamburger.active span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-.hamburger.active span:nth-child(2) {
-  opacity: 0;
-}
-
-.hamburger.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
-}
+/* ===================== RESPONSIVE ===================== */
 
 @media (max-width: 920px) {
+  .search-bar-wrapper { display: none; }
+  .mobile-search-bar { display: flex; }
+
   .nav-links {
     position: fixed;
     top: 76px;
@@ -173,21 +310,10 @@
     transform: translateY(0);
   }
 
-  .nav-links a {
-    display: block;
-  }
-
-  .hamburger {
-    display: block;
-  }
+  .nav-links a { display: block; }
+  .hamburger { display: block; }
 }
 
 @media (max-width: 520px) {
-  .logo-text p {
-    display: none;
-  }
-
-  .icon-btn:first-child {
-    display: none;
-  }
+  .logo-text p { display: none; }
 }

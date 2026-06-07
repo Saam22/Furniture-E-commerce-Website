@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import '../styles/Cart.css';
 
 const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings }) => {

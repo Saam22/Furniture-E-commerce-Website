@@ -7,6 +7,7 @@
   --light-color: #f7f3ee;
   --soft-color: #fffaf4;
   --white: #ffffff;
+  --white-fixed: #ffffff;
   --gray: #6f7a86;
   --success: #2f8f67;
   --danger: #c64747;
@@ -21,9 +22,7 @@
   --transition-slow: all 0.5s ease;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background:
@@ -32,26 +31,80 @@ body {
   color: var(--dark-color);
   line-height: 1.7;
   overflow-x: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
-body,
-h1,
-h2,
-h3,
-h4,
-p,
-ul {
-  margin: 0;
+/* ====== DARK MODE ====== */
+html.dark {
+  color-scheme: dark;
 }
 
-ul {
-  padding: 0;
+html.dark :root {
+  --primary-color: #c77a52;
+  --primary-dark: #a35a38;
+  --secondary-color: #0e2420;
+  --accent-color: #e0b86a;
+  --dark-color: #e9eef2;
+  --light-color: #0f1a19;
+  --soft-color: #0b1413;
+  --white: #111d1c;
+  --gray: #a9b4bd;
+  --border: rgba(232, 222, 210, 0.15);
+  --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
-img {
-  max-width: 100%;
-  display: block;
+html.dark body {
+  background:
+    radial-gradient(circle at top right, rgba(215, 168, 91, 0.1), transparent 34rem),
+    linear-gradient(180deg, #07100f 0%, #0b1413 42%, #07100f 100%);
+  color: var(--dark-color);
 }
+
+/* Dark mode: فئات المنتجات */
+html.dark .category-card {
+  background: var(--light-color);
+  border-color: var(--border);
+}
+
+html.dark .category-card.active {
+  background: var(--secondary-color);
+  border-color: var(--primary-color);
+}
+
+/* Dark mode: سيرش إنبوت */
+html.dark .search-bar input,
+html.dark .mobile-search-bar input {
+  background: var(--light-color);
+  color: var(--dark-color);
+  border-color: var(--border);
+}
+
+html.dark .search-bar input:focus,
+html.dark .mobile-search-bar input:focus {
+  background: #162221;
+  border-color: var(--primary-color);
+}
+
+/* Dark mode: sort select */
+html.dark .sort-control select {
+  background: var(--light-color);
+  color: var(--dark-color);
+  border-color: var(--border);
+}
+
+/* Dark mode: image loader skeleton */
+html.dark .image-loader {
+  background: linear-gradient(90deg, #1a2b29 25%, #223330 50%, #1a2b29 75%);
+  background-size: 200% 100%;
+}
+
+/* ====== BASE ====== */
+
+body, h1, h2, h3, h4, p, ul { margin: 0; }
+ul { padding: 0; }
+img { max-width: 100%; display: block; }
 
 .App {
   min-height: 100vh;
@@ -78,7 +131,7 @@ img {
 }
 
 .btn-primary {
-  color: var(--white);
+  color: var(--white-fixed);
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   box-shadow: 0 12px 28px rgba(184, 107, 69, 0.3);
 }
@@ -125,7 +178,7 @@ img {
   border: 0;
   border-radius: 50%;
   background: var(--secondary-color);
-  color: var(--white);
+  color: var(--white-fixed);
   font-size: 1.45rem;
   cursor: pointer;
   box-shadow: var(--shadow-md);
@@ -147,7 +200,7 @@ img {
   padding: 0.9rem 1.15rem;
   border-radius: var(--radius-md);
   background: var(--secondary-color);
-  color: var(--white);
+  color: var(--white-fixed);
   box-shadow: var(--shadow-lg);
   opacity: 0;
   transform: translateY(-10px);
@@ -169,9 +222,7 @@ img {
 }
 
 @keyframes loading {
-  to {
-    background-position: -200% 0;
-  }
+  to { background-position: -200% 0; }
 }
 
 @keyframes fadeIn {
@@ -199,12 +250,6 @@ img {
 }
 
 @media (max-width: 768px) {
-  .container {
-    width: min(100% - 28px, 1180px);
-  }
-
-  .notification {
-    right: 14px;
-    left: 14px;
-  }
+  .container { width: min(100% - 28px, 1180px); }
+  .notification { right: 14px; left: 14px; }
 }
