@@ -57,9 +57,9 @@ const Footer = () => {
 
           <div className="footer-column footer-contact">
             <h4>تواصل معنا</h4>
-            <p>الرياض، حي الملك فهد، المملكة العربية السعودية</p>
-            <p>+966 50 123 4567</p>
-            <p>info@furniture.sa</p>
+            <p>القاهرة، التجمع الخامس، جمهورية مصر العربية</p>
+            <p>+20 100 123 4567</p>
+            <p>info@furniture.eg</p>
             <p>السبت - الخميس: 9 صباحا - 10 مساء</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ const Footer = () => {
             <div className="payment-methods">
               <span>Visa</span>
               <span>Mastercard</span>
-              <span>Mada</span>
+              <span>Fawry</span>
               <span>Apple Pay</span>
             </div>
           </div>
@@ -78,11 +78,11 @@ const Footer = () => {
           <div>
             <h4>نوصّل إلى</h4>
             <div className="delivery-cities">
-              <span>الرياض</span>
-              <span>جدة</span>
-              <span>الدمام</span>
-              <span>مكة</span>
-              <span>المدينة</span>
+              <span>القاهرة</span>
+              <span>الإسكندرية</span>
+              <span>الجيزة</span>
+              <span>المنصورة</span>
+              <span>طنطا</span>
             </div>
           </div>
         </div>

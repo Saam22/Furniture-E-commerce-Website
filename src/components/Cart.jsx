@@ -9,7 +9,7 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
     };
   }, []);
 
-  const shipping = total >= 1000 || total === 0 ? 0 : 50;
+  const shipping = total >= 2000 || total === 0 ? 0 : 50;
 
   const handleCheckout = () => {
     alert('جاري تحويلك لصفحة الدفع...');
@@ -44,8 +44,8 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                     <p className="item-category">{item.category}</p>
 
                     <div className="item-price-row">
-                      <span className="item-price">{item.price.toLocaleString()} ر.س</span>
-                      {item.originalPrice && <span className="item-original-price">{item.originalPrice.toLocaleString()} ر.س</span>}
+                      <span className="item-price">{item.price.toLocaleString()} ج.م</span>
+                      {item.originalPrice && <span className="item-original-price">{item.originalPrice.toLocaleString()} ج.م</span>}
                     </div>
 
                     <div className="quantity-controls">
@@ -63,24 +63,24 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
             <div className="cart-summary">
               <div className="summary-row">
                 <span>المجموع الفرعي</span>
-                <span>{(total + savings).toLocaleString()} ر.س</span>
+                <span>{(total + savings).toLocaleString()} ج.م</span>
               </div>
 
               {savings > 0 && (
                 <div className="summary-row savings">
                   <span>التوفير</span>
-                  <span>- {savings.toLocaleString()} ر.س</span>
+                  <span>- {savings.toLocaleString()} ج.م</span>
                 </div>
               )}
 
               <div className="summary-row">
                 <span>الشحن</span>
-                <span>{shipping === 0 ? 'مجاني' : `${shipping.toLocaleString()} ر.س`}</span>
+                <span>{shipping === 0 ? 'مجاني' : `${shipping.toLocaleString()} ج.م`}</span>
               </div>
 
               <div className="summary-total">
                 <span>الإجمالي</span>
-                <span>{(total + shipping).toLocaleString()} ر.س</span>
+                <span>{(total + shipping).toLocaleString()} ج.م</span>
               </div>
 
               <button className="checkout-btn" onClick={handleCheckout}>إتمام الطلب</button>
@@ -90,7 +90,7 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                 <span>طرق دفع آمنة ومتعددة</span>
                 <div className="methods">
                   <span>Visa</span>
-                  <span>Mada</span>
+                  <span>Fawry</span>
                   <span>Pay</span>
                 </div>
               </div>

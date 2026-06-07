@@ -6,6 +6,7 @@ import Products from './components/Products';
 import Cart from './components/Cart';
 import Newsletter from './components/Newsletter';
 import Testimonials from './components/Testimonials';
+import ChairDesigner from './components/ChairDesigner';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
 
@@ -17,6 +18,7 @@ import './styles/Cart.css';
 import './styles/Newsletter.css';
 import './styles/Footer.css';
 import './styles/animations.css';
+import './styles/ChairDesigner.css';
 
 function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -154,6 +156,7 @@ function App() {
         onClearSearch={() => setSearchQuery('')}
       />
 
+      <ChairDesigner addToCart={addToCart} />
       <Testimonials />
       <Newsletter />
       <Footer />

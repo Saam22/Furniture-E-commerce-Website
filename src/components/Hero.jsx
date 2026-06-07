@@ -28,7 +28,7 @@ const Hero = () => {
       id: 3,
       title: 'توصيل سريع وتركيب موثوق',
       subtitle: 'نجهز طلبك بعناية ونوصله لباب البيت في الموعد المناسب.',
-      description: 'شحن مجاني للطلبات فوق 1000 ريال وضمان جودة لمدة سنتين.',
+      description: 'شحن مجاني للطلبات فوق 2000 ج.م وضمان جودة لمدة سنتين.',
       image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=1600&h=1000&fit=crop',
       buttonText: 'ابدأ الطلب',
       tag: 'خدمة متكاملة'
@@ -92,7 +92,7 @@ const Hero = () => {
                       <span className="feature-icon">01</span>
                       <div className="feature-text">
                         <h4>شحن مجاني</h4>
-                        <p>للطلبات فوق 1000 ريال</p>
+                        <p>للطلبات فوق 2000 ج.م</p>
                       </div>
                     </div>
                     <div className="feature">

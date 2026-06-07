@@ -63,10 +63,10 @@ const ProductCard = ({ product, addToCart, index, viewMode, searchQuery }) => {
 
         <div className="product-footer">
           <div className="product-price">
-            <span className="current-price">{product.price.toLocaleString()} ر.س</span>
+            <span className="current-price">{product.price.toLocaleString()} ج.م</span>
             {product.originalPrice && (
               <span className="original-price">
-                {product.originalPrice.toLocaleString()} ر.س
+                {product.originalPrice.toLocaleString()} ج.م
               </span>
             )}
           </div>

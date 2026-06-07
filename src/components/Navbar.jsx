@@ -44,6 +44,7 @@ const Navbar = ({
     { id: 'home', name: 'الرئيسية', href: '#home' },
     { id: 'products', name: 'المنتجات', href: '#products' },
     { id: 'offers', name: 'العروض', href: '#products' },
+    { id: 'designer', name: 'صمم قطعتك', href: '#furniture-designer' },
     { id: 'about', name: 'آراء العملاء', href: '#testimonials' },
     { id: 'contact', name: 'تواصل معنا', href: '#contact' },
   ];

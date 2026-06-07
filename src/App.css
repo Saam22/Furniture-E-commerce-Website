@@ -12,6 +12,14 @@
   --success: #2f8f67;
   --danger: #c64747;
   --border: #e8ded2;
+
+  --bg-primary: #faf7f3;
+  --bg-secondary: #f3eee8;
+  --bg-card: #ffffff;
+  --text-primary: #1f2933;
+  --text-secondary: #6f7a86;
+  --border-color: #e8ded2;
+
   --shadow-sm: 0 8px 22px rgba(37, 31, 25, 0.08);
   --shadow-md: 0 14px 35px rgba(37, 31, 25, 0.12);
   --shadow-lg: 0 24px 60px rgba(37, 31, 25, 0.16);
@@ -50,6 +58,14 @@ html.dark :root {
   --white: #111d1c;
   --gray: #a9b4bd;
   --border: rgba(232, 222, 210, 0.15);
+
+  --bg-primary: #0c1817;
+  --bg-secondary: #111e1d;
+  --bg-card: #152220;
+  --text-primary: #e9eef2;
+  --text-secondary: #a9b4bd;
+  --border-color: rgba(232, 222, 210, 0.12);
+
   --shadow-sm: 0 10px 24px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
