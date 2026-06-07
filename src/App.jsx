@@ -7,6 +7,7 @@ import Cart from './components/Cart';
 import Newsletter from './components/Newsletter';
 import Testimonials from './components/Testimonials';
 import ChairDesigner from './components/ChairDesigner';
+import VirtualRoom from './components/VirtualRoom';
 import OrderTracking from './components/OrderTracking';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
@@ -21,8 +22,10 @@ import './styles/Newsletter.css';
 import './styles/Footer.css';
 import './styles/animations.css';
 import './styles/ChairDesigner.css';
+import './styles/VirtualRoom.css';
 
 function App() {
+  const [currentPage, setCurrentPage] = useState('home');
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('furnitureCart');
     if (!savedCart) return [];
@@ -96,16 +99,15 @@ function App() {
   };
 
   const addToCart = (product) => {
-    const existingItem = cartItems.find((item) => item.id === product.id);
-    if (existingItem) {
-      setCartItems(cartItems.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-      ));
-      showNotification('تمت زيادة الكمية في السلة');
-    } else {
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
-      showNotification('تمت الإضافة للسلة بنجاح');
-    }
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      return existing
+        ? prev.map(item =>
+            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        : [...prev, { ...product, quantity: 1 }];
+    });
+    showNotification('تمت الإضافة للسلة بنجاح');
     setIsCartOpen(true);
   };
 
@@ -188,23 +190,36 @@ function App() {
         onSearch={handleSearch}
         onTrackingClick={() => setIsTrackingOpen(true)}
         orderCount={orderCount}
+        currentPage={currentPage}
+        onNavigate={setCurrentPage}
       />
 
-      <Hero />
+      {currentPage === 'home' && (
+        <>
+          <Hero />
 
-      <Categories selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
+          <Categories selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
-      <Products
-        products={filteredProducts}
-        addToCart={addToCart}
-        searchQuery={searchQuery}
-        onClearSearch={() => setSearchQuery('')}
-      />
+          <Products
+            products={filteredProducts}
+            addToCart={addToCart}
+            searchQuery={searchQuery}
+            onClearSearch={() => setSearchQuery('')}
+          />
 
-      <ChairDesigner addToCart={addToCart} />
-      <Testimonials />
-      <Newsletter />
-      <Footer />
+          <Testimonials />
+          <Newsletter />
+          <Footer />
+        </>
+      )}
+
+      {currentPage === 'designer' && (
+        <ChairDesigner addToCart={addToCart} />
+      )}
+
+      {currentPage === 'room' && (
+        <VirtualRoom onAddToCart={addToCart} onClose={() => setCurrentPage('home')} />
+      )}
 
       {isCartOpen && (
         <Cart

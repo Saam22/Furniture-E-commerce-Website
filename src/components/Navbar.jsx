@@ -10,10 +10,11 @@ const Navbar = ({
   onSearch,
   onTrackingClick,
   orderCount,
+  currentPage,
+  onNavigate,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState('home');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef(null);
 
@@ -23,14 +24,12 @@ const Navbar = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // فوكس أوتوماتيك لما السيرش يفتح
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
 
-  // إغلاق السيرش بـ Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -42,18 +41,41 @@ const Navbar = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSearch]);
 
+  const handleNavClick = (id) => {
+    if (id === 'designer') { onNavigate('designer'); }
+    else if (id === 'room') { onNavigate('room'); }
+    else {
+      if (currentPage !== 'home') onNavigate('home');
+      if (id === 'products' || id === 'offers') {
+        setTimeout(() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' }), 50);
+      } else if (id === 'about') {
+        setTimeout(() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' }), 50);
+      } else if (id === 'contact') {
+        setTimeout(() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }), 50);
+      }
+    }
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogoClick = () => {
+    onNavigate('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
+  };
+
   const navLinks = [
-    { id: 'home', name: 'الرئيسية', href: '#home' },
-    { id: 'products', name: 'المنتجات', href: '#products' },
-    { id: 'offers', name: 'العروض', href: '#products' },
-    { id: 'designer', name: 'صمم قطعتك', href: '#furniture-designer' },
-    { id: 'about', name: 'آراء العملاء', href: '#testimonials' },
-    { id: 'contact', name: 'تواصل معنا', href: '#contact' },
+    { id: 'home', name: 'الرئيسية' },
+    { id: 'products', name: 'المنتجات' },
+    { id: 'offers', name: 'العروض' },
+    { id: 'designer', name: 'صمم قطعتك' },
+    { id: 'room', name: 'صمم غرفتك 🪄' },
+    { id: 'about', name: 'آراء العملاء' },
+    { id: 'contact', name: 'تواصل معنا' },
   ];
 
   const handleSearchToggle = () => {
     setIsSearchOpen((prev) => {
-      if (prev) onSearch(''); // مسح البحث عند الإغلاق
+      if (prev) onSearch('');
       return !prev;
     });
   };
@@ -62,15 +84,20 @@ const Navbar = ({
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="nav-content">
-          <a className="logo" href="#home" aria-label="العودة للرئيسية">
+          <button className="logo" onClick={handleLogoClick} aria-label="العودة للرئيسية">
             <span className="logo-mark">MF</span>
             <div className="logo-text">
               <h1>الأثاث العصري</h1>
               <p>Modern Furniture</p>
             </div>
-          </a>
+          </button>
 
-          {/* شريط البحث — يظهر فوق الروابط */}
+          {currentPage !== 'home' && (
+            <button className="back-home-btn" onClick={() => onNavigate('home')}>
+              ← الرئيسية
+            </button>
+          )}
+
           <div className={`search-bar-wrapper ${isSearchOpen ? 'open' : ''}`}>
             <div className="search-bar">
               <span className="search-icon-inline">⌕</span>
@@ -97,22 +124,17 @@ const Navbar = ({
           <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''} ${isSearchOpen ? 'search-mode' : ''}`}>
             {navLinks.map((link) => (
               <li key={link.id}>
-                <a
-                  href={link.href}
-                  className={activeLink === link.id ? 'active' : ''}
-                  onClick={() => {
-                    setActiveLink(link.id);
-                    setIsMobileMenuOpen(false);
-                  }}
+                <button
+                  className={`nav-link-btn ${currentPage === link.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(link.id)}
                 >
                   {link.name}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
 
           <div className="nav-actions">
-            {/* زرار البحث */}
             <button
               className={`icon-btn search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
               onClick={handleSearchToggle}
@@ -121,7 +143,7 @@ const Navbar = ({
             >
               <span>{isSearchOpen ? '×' : '⌕'}</span>
               {searchQuery && !isSearchOpen && (
-                <span className="search-active-dot" aria-hidden="true" />
+                <span className="search-active-dot" />
               )}
             </button>
 
@@ -169,7 +191,6 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* سيرش بار للموبايل — تحت الناف */}
         <div className={`mobile-search-bar ${isSearchOpen ? 'open' : ''}`}>
           <span className="search-icon-inline">⌕</span>
           <input
