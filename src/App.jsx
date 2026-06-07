@@ -38,6 +38,13 @@ function App() {
   const [notification, setNotification] = useState({ show: false, message: '' });
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+
+  const [orderCount, setOrderCount] = useState(() => {
+    const saved = localStorage.getItem('furnitureOrderCount');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('furnitureTheme');
     if (savedTheme) return savedTheme === 'dark';
@@ -47,6 +54,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureOrderCount', String(orderCount));
+  }, [orderCount]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -99,6 +110,18 @@ function App() {
     setCartItems([]);
     showNotification('تم تفريغ السلة');
   };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+    setOrderCount(prev => prev + 1);
+    setCartItems([]);
+    setAppliedCoupon(null);
+    showNotification('تم تأكيد الطلب بنجاح');
+    setIsCartOpen(false);
+  };
+
+  const handleApplyCoupon = (code) => setAppliedCoupon(code);
+  const handleRemoveCoupon = () => setAppliedCoupon(null);
 
   const calculateTotal = () =>
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -170,6 +193,11 @@ function App() {
           clearCart={clearCart}
           total={calculateTotal()}
           savings={calculateSavings()}
+          appliedCoupon={appliedCoupon}
+          onApplyCoupon={handleApplyCoupon}
+          onRemoveCoupon={handleRemoveCoupon}
+          orderCount={orderCount}
+          onCheckout={handleCheckout}
         />
       )}
 

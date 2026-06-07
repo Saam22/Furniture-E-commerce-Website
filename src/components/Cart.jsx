@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import '../styles/Cart.css';
+import DiscountSection from './DiscountSection';
+import { calculateCartDiscounts } from '../utils/discountUtils';
 
-const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings }) => {
+const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings, appliedCoupon, onApplyCoupon, onRemoveCoupon, orderCount, onCheckout }) => {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -9,11 +11,9 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
     };
   }, []);
 
-  const shipping = total >= 2000 || total === 0 ? 0 : 50;
-
-  const handleCheckout = () => {
-    alert('جاري تحويلك لصفحة الدفع...');
-  };
+  const { discounts, totalDiscount, freeShipping, finalTotal, tier } = calculateCartDiscounts(total, appliedCoupon, orderCount);
+  const shipping = freeShipping || total >= 2000 || total === 0 ? 0 : 50;
+  const grandTotal = finalTotal + shipping;
 
   return (
     <>
@@ -61,6 +61,14 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
             </div>
 
             <div className="cart-summary">
+              <DiscountSection
+                subtotal={total}
+                appliedCoupon={appliedCoupon}
+                onApplyCoupon={onApplyCoupon}
+                onRemoveCoupon={onRemoveCoupon}
+                orderCount={orderCount}
+              />
+
               <div className="summary-row">
                 <span>المجموع الفرعي</span>
                 <span>{(total + savings).toLocaleString()} ج.م</span>
@@ -73,6 +81,13 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                 </div>
               )}
 
+              {discounts.map(d => (
+                <div key={d.id} className="summary-row savings">
+                  <span>{d.label}</span>
+                  <span>{d.value > 0 ? `- ${d.value.toLocaleString()} ج.م` : d.type === 'coupon' ? '✓ مفعل' : ''}</span>
+                </div>
+              ))}
+
               <div className="summary-row">
                 <span>الشحن</span>
                 <span>{shipping === 0 ? 'مجاني' : `${shipping.toLocaleString()} ج.م`}</span>
@@ -80,10 +95,10 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
 
               <div className="summary-total">
                 <span>الإجمالي</span>
-                <span>{(total + shipping).toLocaleString()} ج.م</span>
+                <span>{grandTotal.toLocaleString()} ج.م</span>
               </div>
 
-              <button className="checkout-btn" onClick={handleCheckout}>إتمام الطلب</button>
+              <button className="checkout-btn" onClick={onCheckout}>إتمام الطلب</button>
               <button className="clear-cart-btn" onClick={clearCart}>تفريغ السلة</button>
 
               <div className="payment-methods">

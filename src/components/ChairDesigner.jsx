@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import '../styles/ChairDesigner.css';
 import Furniture3D from './Furniture3D';
+import { getActiveOffers } from '../utils/discountUtils';
 
 const C = {
   FABRIC: [
@@ -1000,13 +1001,31 @@ export default function FurnitureDesigner({ addToCart }) {
       );
     }
 
+    if (field.icon === 'wood') {
+      return (
+        <div className="wood-grid" key={field.key}>
+          {optsArr.map(o => {
+            const isActive = val === o.value;
+            return (
+              <button key={o.value} className={`wood-opt ${isActive ? 'active' : ''}`} onClick={() => set(field.key)(o.value)}>
+                <span className="wood-sample" style={{ background: o.color || o.value }}>
+                  <span className="wood-grain" />
+                  {isActive && <span className="wood-check">✓</span>}
+                </span>
+                <span className="wood-label">{o.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
     return (
       <div className="opt-group" key={field.key}>
         {optsArr.map(o => {
           const isActive = val === o.value;
           return (
             <button key={o.value} className={`opt-btn ${isActive ? 'active' : ''}`} onClick={() => set(field.key)(o.value)}>
-              {field.icon === 'wood' && <span className="wood-chip" style={{ backgroundColor: o.color || o.value }} />}
               {field.icon === 'leg' && <svg viewBox="0 0 40 40" className="opt-icon"><LegIcon value={o.value} /></svg>}
               {field.icon === 'cushion' && <CushionIcon value={o.value} />}
               <span>{o.name}</span>
@@ -1033,6 +1052,20 @@ export default function FurnitureDesigner({ addToCart }) {
             </button>
           ))}
         </div>
+
+        {getActiveOffers(type).length > 0 && (
+          <div className="designer-offers">
+            {getActiveOffers(type).map(o => (
+              <div key={o.id} className="designer-offer-banner" style={{ borderColor: o.color }}>
+                <div className="designer-offer-badge" style={{ background: o.color }}>{o.badge}</div>
+                <div className="designer-offer-info">
+                  <span className="designer-offer-title">{o.title}</span>
+                  <span className="designer-offer-desc">{o.description}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="designer-layout">
           <div className="designer-preview">

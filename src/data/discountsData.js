@@ -1,0 +1,65 @@
+export const COUPONS = [
+  { code: 'WELCOME10', type: 'percent', value: 10, minAmount: 0, description: 'خصم 10% للعملاء الجدد' },
+  { code: 'SAVE20', type: 'percent', value: 20, minAmount: 2000, description: 'خصم 20% للطلبات فوق 2000 ج.م' },
+  { code: 'FURNITURE50', type: 'fixed', value: 50, minAmount: 0, description: 'خصم 50 ج.م على أي طلب' },
+  { code: 'FLASH15', type: 'percent', value: 15, minAmount: 1000, description: 'خصم 15% - عرض محدود' },
+  { code: 'FREESHIP', type: 'freeshipping', value: 0, minAmount: 2000, description: 'شحن مجاني للطلبات فوق 2000 ج.م' },
+];
+
+export const ACTIVE_OFFERS = [
+  {
+    id: 'summer-sale',
+    title: 'تخفيضات الصيف',
+    description: 'خصم 15% على جميع المنتجات المخصصة',
+    type: 'percent',
+    value: 15,
+    startDate: '2026-06-01',
+    endDate: '2026-08-31',
+    furnitureTypes: 'all',
+    badge: 'عرض الصيف',
+    color: '#e74c3c',
+  },
+  {
+    id: 'chair-week',
+    title: 'أسبوع الكراسي',
+    description: 'خصم 10% على الكراسي والكراسي المكتبية',
+    type: 'percent',
+    value: 10,
+    startDate: '2026-06-01',
+    endDate: '2026-06-15',
+    furnitureTypes: ['chair', 'office-chair'],
+    badge: 'عرض الأسبوع',
+    color: '#e67e22',
+  },
+  {
+    id: 'bed-sale',
+    title: 'عروض غرفة النوم',
+    description: 'خصم 10% على الأسرة',
+    type: 'percent',
+    value: 10,
+    startDate: '2026-06-01',
+    endDate: '2026-07-01',
+    furnitureTypes: ['bed'],
+    badge: 'تخفيض',
+    color: '#8e44ad',
+  },
+  {
+    id: 'weekend-flash',
+    title: 'عطلة الأثاث',
+    description: 'خصم 12% على جميع القطع - عطلة نهاية الأسبوع',
+    type: 'percent',
+    value: 12,
+    startDate: '2026-06-05',
+    endDate: '2026-06-07',
+    furnitureTypes: 'all',
+    badge: 'عرض محدود',
+    color: '#2ecc71',
+  },
+];
+
+export const LOYALTY_TIERS = [
+  { id: 'bronze', label: 'برونزي', minOrders: 0, discount: 0, color: '#cd7f32' },
+  { id: 'silver', label: 'فضي', minOrders: 3, discount: 5, color: '#a8a8a8' },
+  { id: 'gold', label: 'ذهبي', minOrders: 6, discount: 10, color: '#ffd700' },
+  { id: 'platinum', label: 'بلاتينيوم', minOrders: 10, discount: 15, color: '#e5e4e2' },
+];
