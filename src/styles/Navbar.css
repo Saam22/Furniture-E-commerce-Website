@@ -276,8 +276,12 @@ html.dark .nav-link-btn.active::after {
   place-items: center;
   font-size: 0.6rem;
   font-weight: 900;
-  border: 2px solid var(--white);
+  border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(184, 107, 69, 0.3);
+}
+
+html.dark .cart-badge {
+  border-color: var(--bg-primary);
 }
 
 .wishlist-badge {
@@ -294,8 +298,12 @@ html.dark .nav-link-btn.active::after {
   place-items: center;
   font-size: 0.6rem;
   font-weight: 900;
-  border: 2px solid var(--white);
+  border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(198, 71, 71, 0.3);
+}
+
+html.dark .wishlist-badge {
+  border-color: var(--bg-primary);
 }
 
 .loyalty-points-badge {
@@ -312,7 +320,11 @@ html.dark .nav-link-btn.active::after {
   place-items: center;
   font-size: 0.55rem;
   font-weight: 900;
-  border: 2px solid var(--white);
+  border: 2px solid #fff;
+}
+
+html.dark .loyalty-points-badge {
+  border-color: var(--bg-primary);
 }
 
 /* ====== More Menu Dropdown ====== */

@@ -154,6 +154,12 @@
   box-shadow: var(--shadow-md);
 }
 
+html.dark .stat-card {
+  background: rgba(12, 24, 22, 0.9);
+  color: var(--text-primary);
+  border-color: rgba(232, 222, 210, 0.15);
+}
+
 .stat-number {
   color: var(--secondary-color);
   font-size: 2rem;

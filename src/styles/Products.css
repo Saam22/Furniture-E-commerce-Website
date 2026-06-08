@@ -386,6 +386,10 @@
   background: #cdbfad;
 }
 
+html.dark .testimonial-dots .dot {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .testimonial-dots .dot.active {
   background: var(--secondary-color);
 }
@@ -409,6 +413,41 @@
   .product-card.list {
     grid-template-columns: 1fr;
   }
+}
+
+.show-more-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.show-more-btn {
+  padding: 0.85rem 2.5rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.show-more-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+html.dark .show-more-btn {
+  border-color: rgba(232, 222, 210, 0.15);
+}
+
+html.dark .show-more-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 @media (max-width: 620px) {

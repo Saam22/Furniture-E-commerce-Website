@@ -13,7 +13,8 @@ import WishlistSlideout from './components/WishlistSlideout';
 import CompareSlideout from './components/CompareSlideout';
 import ProductGallery from './components/ProductGallery';
 import LoyaltyDashboard from './components/LoyaltyDashboard';
-import BundlesSection from './components/BundlesSection';
+import BundlesPage from './components/BundlesPage';
+import OffersPage from './components/OffersPage';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
 import { createOrder } from './utils/shippingUtils';
@@ -35,6 +36,7 @@ import './styles/ProductGallery.css';
 import './styles/Reviews.css';
 import './styles/LoyaltyDashboard.css';
 import './styles/Bundles.css';
+import './styles/OffersPage.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -306,7 +308,6 @@ function App() {
             onRatingChange={setMinRating}
           />
 
-          <BundlesSection addToCart={addToCart} />
           <Testimonials />
           <Newsletter />
           <Footer />
@@ -319,6 +320,14 @@ function App() {
 
       {currentPage === 'room' && (
         <VirtualRoom onAddToCart={addToCart} onClose={() => setCurrentPage('home')} />
+      )}
+
+      {currentPage === 'offers' && (
+        <OffersPage addToCart={addToCart} />
+      )}
+
+      {currentPage === 'bundles' && (
+        <BundlesPage addToCart={addToCart} />
       )}
 
       {isCartOpen && (

@@ -6,6 +6,7 @@ import '../styles/Products.css';
 const Products = ({ products, addToCart, searchQuery, onClearSearch, wishlist, onToggleWishlist, compareIds, onToggleCompare, onOpenGallery, minRating, onRatingChange }) => {
   const [sortBy, setSortBy] = useState('default');
   const [viewMode, setViewMode] = useState('grid');
+  const [showAll, setShowAll] = useState(false);
 
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
@@ -16,6 +17,10 @@ const Products = ({ products, addToCart, searchQuery, onClearSearch, wishlist, o
       default:           return 0;
     }
   });
+
+  const INITIAL_COUNT = 8;
+  const visibleProducts = showAll ? sortedProducts : sortedProducts.slice(0, INITIAL_COUNT);
+  const hasMore = sortedProducts.length > INITIAL_COUNT;
 
   return (
     <section className="products-section" id="products">
@@ -64,23 +69,33 @@ const Products = ({ products, addToCart, searchQuery, onClearSearch, wishlist, o
         </div>
 
         {sortedProducts.length > 0 ? (
-          <div className={`products-${viewMode}`}>
-            {sortedProducts.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                addToCart={addToCart}
-                index={index}
-                viewMode={viewMode}
-                searchQuery={searchQuery}
-                isInWishlist={wishlist.includes(product.id)}
-                onToggleWishlist={() => onToggleWishlist(product.id)}
-                isInCompare={compareIds.includes(product.id)}
-                onToggleCompare={() => onToggleCompare(product.id)}
-                onOpenGallery={() => onOpenGallery(product)}
-              />
-            ))}
-          </div>
+          <>
+            <div className={`products-${viewMode}`}>
+              {visibleProducts.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  addToCart={addToCart}
+                  index={index}
+                  viewMode={viewMode}
+                  searchQuery={searchQuery}
+                  isInWishlist={wishlist.includes(product.id)}
+                  onToggleWishlist={() => onToggleWishlist(product.id)}
+                  isInCompare={compareIds.includes(product.id)}
+                  onToggleCompare={() => onToggleCompare(product.id)}
+                  onOpenGallery={() => onOpenGallery(product)}
+                />
+              ))}
+            </div>
+
+            {hasMore && !showAll && (
+              <div className="show-more-wrapper">
+                <button className="show-more-btn" onClick={() => setShowAll(true)}>
+                  عرض المزيد ({sortedProducts.length - INITIAL_COUNT} منتج)
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="no-products">
             <span className="no-products-icon">□</span>

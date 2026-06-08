@@ -4,6 +4,11 @@
   color: var(--white);
 }
 
+html.dark .footer {
+  background: #050e0d;
+  border-top: 1px solid rgba(232, 222, 210, 0.06);
+}
+
 .footer-top {
   display: grid;
   grid-template-columns: 1.8fr repeat(3, 1fr) 1.4fr;

@@ -1,3 +1,35 @@
+.bundles-page {
+  padding-top: 64px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.bundles-page-hero {
+  padding: 4rem 0 3rem;
+  background: linear-gradient(135deg, var(--secondary-color), #0e2420);
+  color: #fff;
+  text-align: center;
+}
+
+html.dark .bundles-page-hero {
+  background: linear-gradient(135deg, var(--secondary-color), #050e0d);
+}
+
+.bundles-page-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+}
+
+.bundles-page-hero p {
+  font-size: 1.05rem;
+  opacity: 0.8;
+}
+
+.bundles-page .bundles-grid {
+  padding: 2.5rem 0 4rem;
+}
+
 .bundles-section {
   padding: 5rem 0;
   background: var(--light-color);
@@ -69,6 +101,10 @@ html.dark .bundles-section {
   font-weight: 800;
 }
 
+html.dark .bundle-save-badge {
+  background: rgba(14, 36, 32, 0.95);
+}
+
 .bundle-body {
   padding: 1.15rem;
   display: flex;
@@ -125,6 +161,10 @@ html.dark .bundles-section {
 .bundle-item.selectable.included {
   border-color: var(--success);
   background: rgba(47, 143, 103, 0.06);
+}
+
+html.dark .bundle-item.selectable.included {
+  background: rgba(47, 143, 103, 0.15);
 }
 
 .bundle-item-check {

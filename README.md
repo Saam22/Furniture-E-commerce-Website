@@ -1,71 +1,100 @@
-# 🛋️ متجر الأثاث العصري | Modern Furniture Store
+# الأثاث العصري — Modern Furniture
 
-## 📌 نبذة عن المشروع
-متجر إلكتروني حديث متخصص في بيع الأثاث العصري والفاخر. يوفر تجربة تسوق سلسة وآمنة مع واجهة مستخدم جميلة وسهلة الاستخدام.
+An Arabic RTL furniture e-commerce single-page application built with React 19 + Vite. All data is client-side with localStorage persistence — no backend required.
 
-## ✨ الميزات الرئيسية
+## Features
 
-### 🎯 واجهة المستخدم
-- ✅ تصميم حديث وسريع الاستجابة (Responsive)
-- ✅ دعم اللغة العربية (RTL)
-- ✅ واجهة جميلة مع تأثيرات بصرية (Animations)
-- ✅ Dark Mode Support
+- **Product Gallery** — Multi-angle thumbnails, zoom overlay, environment context (living room / office / bedroom / dining), keyboard navigation
+- **Reviews & Ratings** — Star rating input, image upload (base64), rating distribution chart, sortable reviews, filter products by minimum rating
+- **Furniture Bundles** — Complete room sets with 18–25% discount, customizable item selection, live pricing
+- **Loyalty Program** — Points per order (10 EGP = 1 pt), redeem for discount (1 pt = 2 EGP, min 100 pts), tier progress (Bronze → Platinum), birthday month 2× points, referral codes
+- **Cart & Checkout** — Quantity controls, delivery zones + cities, coupon codes, loyalty discounts, points redemption, savings breakdown
+- **Order Tracking** — Timeline with step-by-step status per order
+- **Wishlist** — Save products, share via URL, bulk add to cart
+- **Product Comparison** — Compare up to 4 products side-by-side with best-value highlighting
+- **Chair Designer** — Customize chair material, legs, cushion, color with live 3D preview (CSS 3D transforms)
+- **Virtual Room Designer** — Drag products onto a grid to design a room layout
+- **Offers Page** — Dedicated page for active promotions and discounted products
+- **Dark Mode** — Full theme with CSS custom properties, persisted preference
+- **Responsive** — Breakpoints at 980, 920, 860, 768, 640, 620, 600, 520, 480, 420px
+- **Arabic RTL** — Full Arabic interface with right-to-left layout
+- **Animations** — Framer Motion + CSS transitions for smooth interactions
 
-### 🛒 نظام السلة
-- ✅ إضافة/حذف المنتجات
-- ✅ تحديث الكميات
-- ✅ حفظ السلة في Local Storage
-- ✅ حساب الإجمالي والتوفير تلقائياً
-- ✅ عرض الخصومات والأسعار الأصلية
+## Tech Stack
 
-### 📱 تصفح المنتجات
-- ✅ عرض شبكي وقائمة (Grid/List View)
-- ✅ تصفية حسب الفئات (6 فئات)
-- ✅ ترتيب: الأسعار، التقييم، الأحدث
-- ✅ بحث ديناميكي
-- ✅ عرض التقييمات والمراجعات
+- **React 19** — Components, hooks, context
+- **Vite 8** — Build tool with fast HMR
+- **CSS** — Plain CSS with custom properties for theming, no frameworks
+- **localStorage** — All persistence (cart, orders, wishlist, compare, reviews, points)
+- **Framer Motion** — Page transitions and animations
+- **Unsplash** — Product and hero images via CDN
 
-### 🎁 عروض خاصة
-- ✅ عرض الخصومات على المنتجات
-- ✅ منتجات جديدة مميزة
-- ✅ حساب التوفير الفعلي
-- ✅ عروض شحن مجاني (فوق 1000 ر.س)
+## Getting Started
 
-### 📧 النشرة البريدية
-- ✅ نموذج اشتراك محقق
-- ✅ تخزين البيانات بأمان
-- ✅ رسائل تأكيد فورية
+```bash
+npm install
+npm run dev
+```
 
-### 👥 تقييمات العملاء
-- ✅ عرض تقييمات حقيقية
-- ✅ نظام نجوم 5 نجوم
-- ✅ slider تلقائي للتقييمات
 
-### 📞 تواصل
-- ✅ معلومات الاتصال الكاملة
-- ✅ روابط وسائل التواصل الاجتماعي
-- ✅ خريطة الموقع
-- ✅ شروط وأحكام وسياسات
+## Build
 
----
+```bash
+npm run build
+npm run preview
+```
 
-## 🏗️ البنية المعمارية
+## Project Structure
 
-# React + Vite
+```
+src/
+├── components/       # React components
+│   ├── Navbar.jsx
+│   ├── Hero.jsx
+│   ├── Products.jsx
+│   ├── ProductCard.jsx
+│   ├── Cart.jsx
+│   ├── BundlesSection.jsx
+│   ├── OffersPage.jsx
+│   ├── ProductGallery.jsx
+│   ├── ReviewForm.jsx / ReviewList.jsx / RatingFilter.jsx
+│   ├── LoyaltyDashboard.jsx
+│   ├── CompareSlideout.jsx / WishlistSlideout.jsx
+│   ├── ChairDesigner.jsx / VirtualRoom.jsx
+│   ├── OrderTracking.jsx / DeliverySection.jsx / DiscountSection.jsx
+│   └── ...
+├── data/             # Static data + localStorage helpers
+│   ├── productsData.js
+│   ├── bundlesData.js
+│   ├── discountsData.js
+│   ├── productGallery.js
+│   ├── reviewsData.js
+│   └── loyaltyData.js
+├── utils/            # Business logic
+│   ├── discountUtils.js
+│   ├── shippingUtils.js
+│   └── ...
+├── styles/           # CSS files (one per component)
+│   ├── Navbar.css / Hero.css / Products.css / Cart.css / ...
+│   ├── Bundles.css / OffersPage.css
+│   ├── Reviews.css / ProductGallery.css
+│   ├── LoyaltyDashboard.css / Compare.css / Wishlist.css
+│   ├── VirtualRoom.css / ChairDesigner.css
+│   └── animations.css
+├── App.jsx           # Root component — routing + state
+├── App.css           # Global styles, variables, dark mode
+└── main.jsx          # Entry point
+```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Data Flow
 
-Currently, two official plugins are available:
+All state lives in `App.jsx` with `useState` hooks. Data is persisted to `localStorage` on every change via `useEffect`. Components receive data and callbacks as props — no global state library needed.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **cart**, **orders**, **wishlist**, **compareIds** → persisted as JSON arrays
+- **reviews** → persisted in `reviewsData.js` with `localStorage` CRUD
+- **points**, **birthday**, **referrals** → persisted in `loyaltyData.js`
+- **theme** → persisted as `'dark'` / `'light'`
 
-## React Compiler
+## License
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+MIT

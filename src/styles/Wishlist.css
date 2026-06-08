@@ -201,15 +201,29 @@ html.dark .wishlist-total span:last-child {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+html.dark .wishlist-heart {
+  background: rgba(21, 34, 32, 0.92);
+  color: var(--text-primary);
+}
+
 .wishlist-heart:hover {
   transform: scale(1.15);
   background: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+html.dark .wishlist-heart:hover {
+  background: rgba(30, 50, 47, 0.95);
+}
+
 .wishlist-heart.active {
   background: #ffeef0;
   animation: heartPop 0.3s ease;
+}
+
+html.dark .wishlist-heart.active {
+  background: rgba(198, 71, 71, 0.2);
+  color: #ff6b6b;
 }
 
 @keyframes heartPop {

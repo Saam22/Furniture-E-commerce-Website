@@ -92,9 +92,9 @@ const Navbar = ({
   }, []);
 
   const handleNavClick = (id) => {
-    if (id === 'designer') { onNavigate('designer'); }
-    else if (id === 'room') { onNavigate('room'); }
-    else {
+    if (id === 'designer' || id === 'room' || id === 'offers' || id === 'bundles') {
+      onNavigate(id);
+    } else {
       if (currentPage !== 'home') onNavigate('home');
       const targetId = id === 'about' ? 'testimonials' : id;
       setTimeout(() => document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' }), 50);

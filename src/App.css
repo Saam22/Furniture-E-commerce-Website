@@ -45,9 +45,6 @@ body {
 /* ====== DARK MODE ====== */
 html.dark {
   color-scheme: dark;
-}
-
-html.dark :root {
   --primary-color: #c77a52;
   --primary-dark: #a35a38;
   --secondary-color: #0e2420;
@@ -165,8 +162,17 @@ img { max-width: 100%; display: block; }
   backdrop-filter: blur(12px);
 }
 
+html.dark .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.24);
+}
+
+html.dark .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .section-header {
