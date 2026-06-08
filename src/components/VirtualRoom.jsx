@@ -21,10 +21,54 @@ function getItemSize(product) {
 }
 
 function snap(val) { return Math.round(val / CELL) * CELL; }
-
 function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
 
-let nextId = 1;
+const ROOM_PRESETS = [
+  {
+    name: 'غرفة فارغة',
+    label: 'ابدأ من الصفر',
+    items: [],
+  },
+  {
+    name: 'غرفة معيشة',
+    label: 'كنبة + طاولة + كرسي',
+    items: [1, 9, 11],
+  },
+  {
+    name: 'غرفة نوم',
+    label: 'سرير + خزانة + تسريحة',
+    items: [3, 8, 15],
+  },
+  {
+    name: 'مكتب منزلي',
+    label: 'مكتب + كرسي + دولاب',
+    items: [10, 16, 34],
+  },
+];
+
+function findFirstFreePosition(items, size, excludeId) {
+  const wPx = size.w * CELL;
+  const dPx = size.d * CELL;
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const x = col * CELL;
+      const y = row * CELL;
+      let overlap = false;
+      for (const item of items) {
+        if (item.id === excludeId) continue;
+        if (x < item.x + item.wPx && x + wPx > item.x &&
+            y < item.y + item.dPx && y + dPx > item.y) {
+          overlap = true;
+          break;
+        }
+      }
+      if (!overlap && x + wPx <= COLS * CELL && y + dPx <= ROWS * CELL) {
+        return { x, y };
+      }
+    }
+  }
+  return null;
+}
 
 const VirtualRoom = ({ onAddToCart, onClose }) => {
   const [items, setItems] = useState([]);
@@ -32,6 +76,8 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
   const [dragOver, setDragOver] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const canvasRef = useRef(null);
+  const dragItemRef = useRef(null);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
 
   const filteredProducts = selectedCat === 'all'
     ? productsData
@@ -62,18 +108,37 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
         return false;
       }
     }
-    const maxX = COLS * CELL;
-    const maxY = ROWS * CELL;
-    return x >= 0 && y >= 0 && x + wPx <= maxX && y + dPx <= maxY;
+    return x >= 0 && y >= 0 && x + wPx <= COLS * CELL && y + dPx <= ROWS * CELL;
   }, [items]);
 
-  const handleDragOver = useCallback((e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    setDragOver(true);
-  }, []);
-
-  const handleDragLeave = useCallback(() => setDragOver(false), []);
+  const addItem = useCallback((product, x, y) => {
+    const size = getItemSize(product);
+    const wPx = size.w * CELL;
+    const dPx = size.d * CELL;
+    const pos = { x, y };
+    if (!pos.x && !pos.y) {
+      const free = findFirstFreePosition(items, size, null);
+      if (!free) return false;
+      pos.x = free.x;
+      pos.y = free.y;
+    }
+    if (!canPlace(pos.x, pos.y, size.w, size.d, null)) return false;
+    const maxId = items.reduce((m, i) => Math.max(m, i.id), 0);
+    setItems(prev => [...prev, {
+      id: maxId + 1,
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      x: pos.x,
+      y: pos.y,
+      w: size.w,
+      d: size.d,
+      wPx, dPx,
+      rotation: 0,
+    }]);
+    return true;
+  }, [items, canPlace]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -82,30 +147,18 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
       const data = JSON.parse(e.dataTransfer.getData('text/plain'));
       const product = data.product;
       if (!product || !product.id) return;
-      const size = getItemSize(product);
-      const wPx = size.w * CELL;
-      const dPx = size.d * CELL;
       const { x, y } = calcDropPosition(e.clientX, e.clientY);
-
-      if (!canPlace(x, y, size.w, size.d, null)) return;
-
-      setItems(prev => [...prev, {
-        id: nextId++,
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        x, y,
-        w: size.w,
-        d: size.d,
-        wPx, dPx,
-        rotation: 0,
-      }]);
+      addItem(product, x, y);
     } catch { /* ignore */ }
-  }, [calcDropPosition, canPlace]);
+  }, [calcDropPosition, addItem]);
+
+  const handlePanelItemClick = useCallback((product) => {
+    const added = addItem(product, null, null);
+    if (!added) return;
+  }, [addItem]);
 
   const handleCanvasClick = useCallback((e) => {
-    if (e.target === canvasRef.current || e.target.classList.contains('room-grid')) {
+    if (e.target === canvasRef.current || e.target.classList.contains('room-grid') || e.target.classList.contains('room-cell')) {
       setSelectedItemId(null);
     }
   }, []);
@@ -127,6 +180,16 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
     setSelectedItemId(null);
   }, []);
 
+  const handleUndo = useCallback(() => {
+    setItems(prev => prev.slice(0, -1));
+    setSelectedItemId(null);
+  }, []);
+
+  const handleClearRoom = useCallback(() => {
+    setItems([]);
+    setSelectedItemId(null);
+  }, []);
+
   const handleAddAllToCart = useCallback(() => {
     const seen = new Set();
     items.forEach(item => {
@@ -138,11 +201,73 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
     });
   }, [items, onAddToCart]);
 
+  const handlePreset = useCallback((preset) => {
+    setItems([]);
+    setSelectedItemId(null);
+    if (preset.items.length === 0) return;
+    const newItems = [];
+    const placed = [];
+    preset.items.forEach(productId => {
+      const product = productsData.find(p => p.id === productId);
+      if (!product) return;
+      const size = getItemSize(product);
+      const wPx = size.w * CELL;
+      const dPx = size.d * CELL;
+      const pos = findFirstFreePosition(placed, size, null);
+      if (!pos) return;
+      placed.push({ id: 0, x: pos.x, y: pos.y, wPx, dPx }); // temp for overlap check
+      newItems.push({
+        id: newItems.length + 1,
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        x: pos.x, y: pos.y,
+        w: size.w, d: size.d,
+        wPx, dPx,
+        rotation: 0,
+      });
+    });
+    setItems(newItems);
+  }, []);
+
+  const handleItemDragStart = useCallback((e, item) => {
+    e.stopPropagation();
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'move');
+    dragItemRef.current = item;
+    dragOffsetRef.current = {
+      x: e.clientX - item.x,
+      y: e.clientY - item.y,
+    };
+  }, []);
+
+  const handleCanvasDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const handleItemDrop = useCallback((e) => {
+    e.preventDefault();
+    if (!dragItemRef.current || !dragItemRef.current.id) return;
+    const item = dragItemRef.current;
+    const { x, y } = calcDropPosition(e.clientX, e.clientY);
+    const size = { w: item.w, d: item.d };
+    if (canPlace(x, y, size.w, size.d, item.id)) {
+      setItems(prev => prev.map(i =>
+        i.id === item.id ? { ...i, x, y } : i
+      ));
+    }
+    dragItemRef.current = null;
+  }, [calcDropPosition, canPlace]);
+
+  const catButtons = ['all', 'غرف معيشة', 'غرف نوم', 'غرف طعام', 'مكاتب', 'ديكور'];
+
   return (
     <section className="virtual-room" id="virtual-room">
       <div className="vr-header">
         <h2>صمم غرفتك 🪄</h2>
-        <p>اسحب الأثاث من القائمة وضعه في الغرفة كما تريد</p>
+        <p>اختر من القائمة الجانبية أو اسحب الأثاث وضعه في الغرفة</p>
       </div>
 
       <div className="vr-layout">
@@ -150,24 +275,58 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
           <div className="vr-canvas-header">
             <span>غرفتك</span>
             <span className="vr-canvas-dims">{COLS * CELL / 10} × {ROWS * CELL / 10} م</span>
-            {items.length > 0 && (
-              <button className="vr-clear-btn" onClick={() => { setItems([]); setSelectedItemId(null); }}>
-                تفريغ الغرفة
-              </button>
-            )}
+            <div className="vr-canvas-header-actions">
+              {items.length > 0 && (
+                <>
+                  <button className="vr-undo-btn" onClick={handleUndo} title="تراجع">
+                    ↩
+                  </button>
+                  <button className="vr-clear-btn" onClick={handleClearRoom}>
+                    تفريغ
+                  </button>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Room presets */}
+          <div className="vr-presets">
+            {ROOM_PRESETS.map(p => (
+              <button key={p.name} className="vr-preset-btn" onClick={() => handlePreset(p)}>
+                <span className="vr-preset-name">{p.name}</span>
+                <span className="vr-preset-label">{p.label}</span>
+              </button>
+            ))}
+          </div>
+
           <div
             ref={canvasRef}
             className={`room-canvas ${dragOver ? 'drag-over' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+            onDragOver={handleCanvasDragOver}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              const dt = e.dataTransfer.getData('text/plain');
+              if (dt === 'move') {
+                handleItemDrop(e);
+              } else {
+                handleDrop(e);
+              }
+            }}
             onClick={handleCanvasClick}
           >
             <div className="room-grid" style={{ width: COLS * CELL, height: ROWS * CELL }}>
+              {/* Grid cells */}
               {Array.from({ length: ROWS * COLS }).map((_, i) => (
                 <div key={i} className="room-cell" />
               ))}
+
+              {/* Room walls */}
+              <div className="room-wall room-wall-top" />
+              <div className="room-wall room-wall-bottom" />
+              <div className="room-wall room-wall-left" />
+              <div className="room-wall room-wall-right" />
+
+              {/* Items */}
               {items.map(item => {
                 const isSelected = item.id === selectedItemId;
                 const style = {
@@ -182,40 +341,53 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
                     key={item.id}
                     className={`room-item ${isSelected ? 'selected' : ''}`}
                     style={style}
+                    draggable
+                    onDragStart={e => handleItemDragStart(e, item)}
                     onClick={e => handleItemClick(e, item.id)}
                     onDoubleClick={e => handleItemDoubleClick(e, item.id)}
-                    title={`${item.name}\n${item.price.toLocaleString()} ج.م`}
                   >
                     <img src={item.image} alt={item.name} draggable={false} />
                     <div className="room-item-label">
                       <span className="room-item-name">{item.name}</span>
                       <span className="room-item-price">{item.price.toLocaleString()} ج.م</span>
                     </div>
-                    <button className="room-item-remove" onClick={e => { e.stopPropagation(); handleRemoveItem(item.id); }}>×</button>
-                    <span className="room-item-rotate-hint">🔄</span>
+                    {isSelected && (
+                      <>
+                        <button className="room-item-rotate" onClick={e => { e.stopPropagation(); handleItemDoubleClick(e, item.id); }} title="تدوير">
+                          ↻
+                        </button>
+                        <button className="room-item-remove" onClick={e => { e.stopPropagation(); handleRemoveItem(item.id); }} title="حذف">
+                          ✕
+                        </button>
+                      </>
+                    )}
                   </div>
                 );
               })}
+
               {items.length === 0 && (
                 <div className="room-empty-hint">
                   <span>🏠</span>
-                  <p>اسحب الأثاث من القائمة الجانبية إلى هنا</p>
+                  <p>اختر أثاث من القائمة أو اسحب القطع إلى هنا</p>
+                  <small>انقر على أي قطعة لإضافتها إلى الغرفة</small>
                 </div>
               )}
             </div>
           </div>
+
           <div className="vr-canvas-footer">
-            <span>{items.length} قطعة في الغرفة</span>
-            <span>انقر للاختيار • انقر مرتين للتدوير • احذف بالضغط على ×</span>
+            <span>{items.length} قطعة</span>
+            <span>انقر للاختيار • دبل كليك للتدوير • اسحب لتحريك</span>
           </div>
         </div>
 
         <div className="vr-panel-section">
           <div className="vr-panel-header">
             <span>قائمة الأثاث</span>
+            <span className="vr-panel-count">{filteredProducts.length}</span>
           </div>
           <div className="vr-panel-cats">
-            {['all', 'غرف معيشة', 'غرف نوم', 'غرف طعام', 'مكاتب', 'ديكور'].map(cat => (
+            {catButtons.map(cat => (
               <button
                 key={cat}
                 className={`vr-cat-btn ${selectedCat === cat ? 'active' : ''}`}
@@ -232,13 +404,14 @@ const VirtualRoom = ({ onAddToCart, onClose }) => {
                 className="vr-panel-item"
                 draggable
                 onDragStart={e => handleDragStart(e, product)}
+                onClick={() => handlePanelItemClick(product)}
               >
                 <img src={product.image} alt={product.name} draggable={false} />
                 <div className="vr-panel-item-info">
                   <span className="vr-panel-item-name">{product.name}</span>
                   <span className="vr-panel-item-price">{product.price.toLocaleString()} ج.م</span>
                 </div>
-                <span className="vr-panel-drag-hint" title="اسحب للغرفة">⠿</span>
+                <span className="vr-panel-add-hint" title="أضف للغرفة">+</span>
               </div>
             ))}
           </div>

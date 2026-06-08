@@ -1,12 +1,24 @@
 .virtual-room {
-  padding: 2rem 2rem 1.5rem;
+  padding: 5rem 2rem 1.5rem;
   background: var(--bg-primary);
   border-top: 1px solid var(--border-color);
 }
 
 .vr-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
+  position: relative;
+}
+
+.vr-header::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--accent-color);
+  margin: 0.8rem auto 0;
+  border-radius: 3px;
+  opacity: 0.5;
 }
 
 .vr-header h2 {
@@ -17,8 +29,8 @@
 
 .vr-header p {
   color: var(--text-secondary);
-  margin-top: 0.3rem;
-  font-size: 0.95rem;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
 }
 
 .vr-layout {
@@ -44,6 +56,13 @@
   font-size: 0.95rem;
 }
 
+.vr-canvas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+
 .vr-canvas-dims {
   color: var(--text-secondary);
   font-weight: 400;
@@ -52,8 +71,27 @@
   direction: ltr;
 }
 
+.vr-undo-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.vr-undo-btn:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  background: rgba(215, 168, 91, 0.08);
+}
+
 .vr-clear-btn {
-  margin-right: auto;
   border: 1px solid var(--danger);
   background: transparent;
   color: var(--danger);
@@ -69,6 +107,46 @@
 .vr-clear-btn:hover {
   background: var(--danger);
   color: #fff;
+}
+
+/* Room presets */
+.vr-presets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.vr-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.vr-preset-btn:hover {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 6%, var(--bg-card));
+}
+
+.vr-preset-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vr-preset-label {
+  font-size: 0.62rem;
+  color: var(--text-secondary);
 }
 
 .room-canvas {
@@ -103,6 +181,59 @@
 
 .room-cell {
   pointer-events: none;
+  position: relative;
+}
+
+.room-cell::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.room-canvas:not(.drag-over) .room-cell::after {
+  background: transparent;
+}
+
+/* Room wall outlines */
+.room-wall {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.room-wall-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+  opacity: 0.5;
+}
+
+.room-wall-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+}
+
+.room-wall-left {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--border-color), transparent);
+}
+
+.room-wall-right {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--border-color), transparent);
 }
 
 .room-empty-hint {
@@ -112,19 +243,29 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   color: var(--text-secondary);
   pointer-events: none;
+  z-index: 1;
 }
 
 .room-empty-hint span {
-  font-size: 3rem;
-  opacity: 0.4;
+  font-size: 3.5rem;
+  opacity: 0.3;
+  filter: grayscale(0.5);
 }
 
 .room-empty-hint p {
   font-size: 0.9rem;
   opacity: 0.5;
+  text-align: center;
+  padding: 0 1rem;
+  line-height: 1.5;
+}
+
+.room-empty-hint small {
+  font-size: 0.75rem;
+  opacity: 0.35;
 }
 
 .room-item {
@@ -133,10 +274,22 @@
   overflow: hidden;
   cursor: grab;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: box-shadow 0.2s, opacity 0.2s;
+  transition: box-shadow 0.2s, opacity 0.2s, left 0.25s ease, top 0.25s ease;
   border: 2px solid transparent;
   background: var(--bg-card);
   z-index: 1;
+  animation: roomItemAppear 0.3s ease-out;
+}
+
+@keyframes roomItemAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .room-item:hover {
@@ -188,43 +341,43 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
-.room-item-remove {
+.room-item-remove,
+.room-item-rotate {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 0;
-  background: rgba(198, 71, 71, 0.9);
-  color: #fff;
-  font-size: 0.8rem;
   cursor: pointer;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 900;
   line-height: 1;
   z-index: 5;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.room-item:hover .room-item-remove,
-.room-item.selected .room-item-remove {
-  display: flex;
+.room-item-remove:hover,
+.room-item-rotate:hover {
+  transform: scale(1.15);
 }
 
-.room-item-rotate-hint {
-  position: absolute;
-  bottom: 2px;
+.room-item-remove {
+  top: 2px;
   left: 2px;
-  font-size: 0.6rem;
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 5;
-  pointer-events: none;
+  background: var(--danger);
+  color: #fff;
 }
 
-.room-item:hover .room-item-rotate-hint {
-  opacity: 0.6;
+.room-item-rotate {
+  top: 2px;
+  right: 2px;
+  background: rgba(215, 168, 91, 0.9);
+  color: #fff;
+  font-size: 0.85rem;
 }
 
 .vr-canvas-footer {
@@ -252,6 +405,9 @@
   font-size: 0.9rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .vr-panel-cats {
@@ -295,6 +451,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  scrollbar-width: thin;
 }
 
 .vr-panel-item {
@@ -305,7 +462,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
-  cursor: grab;
+  cursor: pointer;
   transition: var(--transition);
   user-select: none;
 }
@@ -316,7 +473,6 @@
 }
 
 .vr-panel-item:active {
-  cursor: grabbing;
   opacity: 0.7;
 }
 
@@ -350,11 +506,32 @@
   font-weight: 800;
 }
 
-.vr-panel-drag-hint {
-  font-size: 1.2rem;
+.vr-panel-add-hint {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.vr-panel-item:hover .vr-panel-add-hint {
+  opacity: 1;
+}
+
+.vr-panel-count {
+  background: var(--bg-secondary);
   color: var(--text-secondary);
-  opacity: 0.4;
-  cursor: grab;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
 }
 
 .vr-footer {
@@ -432,7 +609,7 @@ html.dark .vr-total-price {
   }
 
   .virtual-room {
-    padding: 1.5rem 1rem;
+    padding: 5rem 1rem 1.5rem;
   }
 
   .room-grid {
@@ -461,8 +638,19 @@ html.dark .vr-total-price {
     gap: 0.5rem;
   }
 
-  .vr-clear-btn {
+  .vr-clear-btn,
+  .vr-undo-btn {
     margin-right: 0;
+  }
+
+  .vr-presets {
+    flex-wrap: wrap;
+  }
+
+  .vr-preset-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 8px;
   }
 
   .vr-total {

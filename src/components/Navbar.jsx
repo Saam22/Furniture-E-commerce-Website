@@ -120,9 +120,7 @@ const Navbar = ({
     { id: 'home', name: 'الرئيسية' },
     { id: 'products', name: 'المنتجات' },
     { id: 'offers', name: 'العروض' },
-    { id: 'designer', name: 'صمم قطعتك' },
     { id: 'room', name: 'صمم غرفتك' },
-    { id: 'bundles', name: 'الحزم الموفرة' },
     { id: 'about', name: 'آراء العملاء' },
     { id: 'contact', name: 'تواصل معنا' },
   ];
@@ -131,6 +129,8 @@ const Navbar = ({
     ...(orderCount > 0 ? [{ id: 'tracking', icon: '📦', label: 'تتبع الطلبات', onClick: () => { onTrackingClick(); setShowMoreMenu(false); } }] : []),
     { id: 'loyalty', icon: '✦', label: 'برنامج الولاء', onClick: () => { onLoyaltyClick(); setShowMoreMenu(false); }, badge: pointsBalance > 0 ? pointsBalance : null },
     { id: 'compare', icon: '⚖️', label: 'المقارنة', onClick: () => { onCompareClick(); setShowMoreMenu(false); }, badge: compareCount > 0 ? compareCount : null },
+    { id: 'designer', icon: '✎', label: 'صمم قطعتك', onClick: () => { handleNavClick('designer'); setShowMoreMenu(false); } },
+    { id: 'bundles', icon: '⊞', label: 'الحزم الموفرة', onClick: () => { handleNavClick('bundles'); setShowMoreMenu(false); } },
   ];
 
   return (
@@ -280,6 +280,20 @@ const Navbar = ({
                 <span>{link.name}</span>
               </button>
             ))}
+            <button
+              className={`mobile-nav-item ${currentPage === 'designer' ? 'active' : ''}`}
+              onClick={() => handleNavClick('designer')}
+            >
+              <span className="mobile-nav-item-icon">{NAV_ICONS['designer']}</span>
+              <span>صمم قطعتك</span>
+            </button>
+            <button
+              className={`mobile-nav-item ${currentPage === 'bundles' ? 'active' : ''}`}
+              onClick={() => handleNavClick('bundles')}
+            >
+              <span className="mobile-nav-item-icon">{NAV_ICONS['bundles']}</span>
+              <span>الحزم الموفرة</span>
+            </button>
           </div>
 
           <div className="mobile-nav-links">
