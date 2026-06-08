@@ -9,9 +9,15 @@ import Testimonials from './components/Testimonials';
 import ChairDesigner from './components/ChairDesigner';
 import VirtualRoom from './components/VirtualRoom';
 import OrderTracking from './components/OrderTracking';
+import WishlistSlideout from './components/WishlistSlideout';
+import CompareSlideout from './components/CompareSlideout';
+import ProductGallery from './components/ProductGallery';
+import LoyaltyDashboard from './components/LoyaltyDashboard';
+import BundlesSection from './components/BundlesSection';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
 import { createOrder } from './utils/shippingUtils';
+import { addPoints, applyReferralBonus, getPointsBalance } from './data/loyaltyData';
 
 import './App.css';
 import './styles/Navbar.css';
@@ -23,6 +29,12 @@ import './styles/Footer.css';
 import './styles/animations.css';
 import './styles/ChairDesigner.css';
 import './styles/VirtualRoom.css';
+import './styles/Wishlist.css';
+import './styles/Compare.css';
+import './styles/ProductGallery.css';
+import './styles/Reviews.css';
+import './styles/LoyaltyDashboard.css';
+import './styles/Bundles.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -67,6 +79,69 @@ function App() {
     if (savedTheme) return savedTheme === 'dark';
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  const [wishlist, setWishlist] = useState(() => {
+    const saved = localStorage.getItem('furnitureWishlist');
+    if (!saved) return [];
+    try { const p = JSON.parse(saved); return Array.isArray(p) ? p : []; } catch { return []; }
+  });
+
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+
+  const [compareIds, setCompareIds] = useState(() => {
+    const saved = localStorage.getItem('furnitureCompare');
+    if (!saved) return [];
+    try { const p = JSON.parse(saved); return Array.isArray(p) ? p : []; } catch { return []; }
+  });
+
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const [galleryProduct, setGalleryProduct] = useState(null);
+  const [minRating, setMinRating] = useState(0);
+  const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false);
+  const [pointsTrigger, setPointsTrigger] = useState(0);
+
+  const toggleCompare = (productId) => {
+    setCompareIds(prev => {
+      if (prev.includes(productId)) return prev.filter(id => id !== productId);
+      if (prev.length >= 4) {
+        showNotification('يمكن مقارنة 4 منتجات كحد أقصى');
+        return prev;
+      }
+      return [...prev, productId];
+    });
+  };
+
+  const isInCompare = (productId) => compareIds.includes(productId);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureCompare', JSON.stringify(compareIds));
+  }, [compareIds]);
+
+  const toggleWishlist = (productId) => {
+    setWishlist(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  const isInWishlist = (productId) => wishlist.includes(productId);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureWishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wishlistParam = params.get('wishlist');
+    if (wishlistParam) {
+      const ids = wishlistParam.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
+      if (ids.length > 0) {
+        setWishlist(ids);
+        setIsWishlistOpen(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
@@ -138,6 +213,14 @@ function App() {
     setOrderCount(prev => prev + 1);
     setCartItems([]);
     setAppliedCoupon(null);
+
+    const earned = checkoutInfo.earnedPoints || 0;
+    if (earned > 0) {
+      addPoints(earned, 'نقاط من طلب');
+    }
+    applyReferralBonus();
+    setPointsTrigger(p => p + 1);
+
     showNotification('تم تأكيد الطلب بنجاح');
     setIsCartOpen(false);
   };
@@ -154,7 +237,7 @@ function App() {
       0
     );
 
-  // فلترة بالكاتيجوري + البحث معاً
+  // فلترة بالكاتيجوري + البحث + التقييم
   const filteredProducts = productsData.filter((product) => {
     const matchesCategory =
       selectedCategory === 'all' || product.category === selectedCategory;
@@ -163,7 +246,8 @@ function App() {
       product.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
       (product.description &&
         product.description.toLowerCase().includes(searchQuery.trim().toLowerCase()));
-    return matchesCategory && matchesSearch;
+    const matchesRating = minRating === 0 || product.rating >= minRating;
+    return matchesCategory && matchesSearch && matchesRating;
   });
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
@@ -192,6 +276,14 @@ function App() {
         orderCount={orderCount}
         currentPage={currentPage}
         onNavigate={setCurrentPage}
+        wishlistCount={wishlist.length}
+        onWishlistClick={() => setIsWishlistOpen(true)}
+        compareCount={compareIds.length}
+        onCompareClick={() => setIsCompareOpen(true)}
+        onLoyaltyClick={() => setIsLoyaltyOpen(true)}
+        pointsBalance={getPointsBalance()}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
       />
 
       {currentPage === 'home' && (
@@ -205,8 +297,16 @@ function App() {
             addToCart={addToCart}
             searchQuery={searchQuery}
             onClearSearch={() => setSearchQuery('')}
+            wishlist={wishlist}
+            onToggleWishlist={toggleWishlist}
+            compareIds={compareIds}
+            onToggleCompare={toggleCompare}
+            onOpenGallery={setGalleryProduct}
+            minRating={minRating}
+            onRatingChange={setMinRating}
           />
 
+          <BundlesSection addToCart={addToCart} />
           <Testimonials />
           <Newsletter />
           <Footer />
@@ -243,6 +343,39 @@ function App() {
           <div className="cart-overlay" onClick={() => setIsTrackingOpen(false)}></div>
           <OrderTracking orders={orders} onClose={() => setIsTrackingOpen(false)} />
         </>
+      )}
+
+      {isWishlistOpen && (
+        <WishlistSlideout
+          onClose={() => setIsWishlistOpen(false)}
+          wishlist={wishlist}
+          onToggleWishlist={toggleWishlist}
+          onAddToCart={(product) => { addToCart(product); setIsWishlistOpen(false); }}
+        />
+      )}
+
+      {isCompareOpen && (
+        <CompareSlideout
+          onClose={() => setIsCompareOpen(false)}
+          compareIds={compareIds}
+          onToggleCompare={toggleCompare}
+          onAddToCart={(product) => { addToCart(product); setIsCompareOpen(false); }}
+        />
+      )}
+
+      {galleryProduct && (
+        <ProductGallery
+          product={galleryProduct}
+          onClose={() => setGalleryProduct(null)}
+          addToCart={addToCart}
+        />
+      )}
+
+      {isLoyaltyOpen && (
+        <LoyaltyDashboard
+          orderCount={orderCount}
+          onClose={() => setIsLoyaltyOpen(false)}
+        />
       )}
 
       {showScrollTop && (

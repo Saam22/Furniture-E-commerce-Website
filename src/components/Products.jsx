@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import ProductCard from './ProductCard';
+import RatingFilter from './RatingFilter';
 import '../styles/Products.css';
 
-const Products = ({ products, addToCart, searchQuery, onClearSearch }) => {
+const Products = ({ products, addToCart, searchQuery, onClearSearch, wishlist, onToggleWishlist, compareIds, onToggleCompare, onOpenGallery, minRating, onRatingChange }) => {
   const [sortBy, setSortBy] = useState('default');
   const [viewMode, setViewMode] = useState('grid');
 
@@ -45,6 +46,8 @@ const Products = ({ products, addToCart, searchQuery, onClearSearch }) => {
               </select>
             </label>
 
+            <RatingFilter minRating={minRating} onChange={onRatingChange} />
+
             <div className="view-toggle" aria-label="طريقة العرض">
               <button
                 className={viewMode === 'grid' ? 'active' : ''}
@@ -70,6 +73,11 @@ const Products = ({ products, addToCart, searchQuery, onClearSearch }) => {
                 index={index}
                 viewMode={viewMode}
                 searchQuery={searchQuery}
+                isInWishlist={wishlist.includes(product.id)}
+                onToggleWishlist={() => onToggleWishlist(product.id)}
+                isInCompare={compareIds.includes(product.id)}
+                onToggleCompare={() => onToggleCompare(product.id)}
+                onOpenGallery={() => onOpenGallery(product)}
               />
             ))}
           </div>

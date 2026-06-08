@@ -171,3 +171,44 @@
   font-weight: 700;
   color: var(--success);
 }
+
+@media (max-width: 600px) {
+  .coupon-input-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .coupon-apply-btn {
+    width: 100%;
+    padding: 10px 16px;
+  }
+
+  .tier-info {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .offer-banner {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .offer-badge {
+    width: 100%;
+    text-align: center;
+  }
+
+  .offer-info {
+    width: 100%;
+  }
+
+  .coupon-section {
+    padding: 10px;
+  }
+
+  .coupon-applied {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+}

@@ -31,7 +31,7 @@ const OrderTracking = ({ orders = [], onClose }) => {
           const items = order.items || [];
           const currentIdx = statusIndex(order.status);
           return (
-            <div key={order.id || Math.random()} className="tracking-order">
+            <div key={order.id || `order-${order.date}-${order.grandTotal}`} className="tracking-order">
               <div className="tracking-order-header">
                 <span className="tracking-order-id">{order.id || '—'}</span>
                 <span className="tracking-order-date">
@@ -61,6 +61,27 @@ const OrderTracking = ({ orders = [], onClose }) => {
                   {order.delivery.freeShipping && ' | شحن مجاني'}
                 </div>
               )}
+
+              <div className="tracking-order-items">
+                {items.map((item, idx) => (
+                  <div key={item.id || idx} className="tracking-order-item">
+                    <div className="tracking-item-image-wrapper">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                        width="60"
+                        height="60"
+                      />
+                    </div>
+                    <div className="tracking-item-details">
+                      <span className="tracking-item-name">{item.name}</span>
+                      <span className="tracking-item-qty">الكمية: {item.quantity || 1}</span>
+                      <span className="tracking-item-price">{item.price?.toLocaleString() ?? '0'} ج.م</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}

@@ -34,6 +34,13 @@ export function getLoyaltyTier(orderCount) {
   return tier;
 }
 
+export function getNextTier(orderCount) {
+  for (const t of LOYALTY_TIERS) {
+    if (orderCount < t.minOrders) return t;
+  }
+  return null;
+}
+
 export function validateCoupon(code, subtotal) {
   if (!code || !code.trim()) return { valid: false, error: 'يرجى إدخال كود الخصم' };
   const coupon = COUPONS.find(c => c.code === code.trim().toUpperCase());

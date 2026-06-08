@@ -434,4 +434,96 @@ html.dark .vr-total-price {
   .virtual-room {
     padding: 1.5rem 1rem;
   }
+
+  .room-grid {
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(8, 50px);
+    background-size: 50px 50px;
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 600px) {
+  .room-grid {
+    grid-template-columns: repeat(10, 42px);
+    grid-template-rows: repeat(8, 42px);
+    background-size: 42px 42px;
+    min-height: 336px;
+  }
+
+  .vr-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .vr-canvas-header {
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .vr-clear-btn {
+    margin-right: 0;
+  }
+
+  .vr-total {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .vr-total-price {
+    font-size: 1.2rem;
+  }
+
+  .vr-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .vr-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-grid {
+    grid-template-columns: repeat(10, 36px);
+    grid-template-rows: repeat(8, 36px);
+    background-size: 36px 36px;
+    min-height: 288px;
+  }
+
+  .vr-canvas-header {
+    font-size: 0.8rem;
+  }
+
+  .vr-panel-section {
+    max-height: 260px;
+  }
+
+  .vr-panel-item {
+    padding: 4px;
+    gap: 6px;
+  }
+
+  .vr-panel-item img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vr-panel-item-name {
+    font-size: 0.7rem;
+  }
+
+  .room-item-name {
+    font-size: 0.5rem;
+  }
+
+  .room-item-price {
+    font-size: 0.45rem;
+  }
+
+  .room-empty-hint span {
+    font-size: 2rem;
+  }
 }
