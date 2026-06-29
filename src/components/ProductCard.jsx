@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import OptimizedImage from './OptimizedImage';
 
 // هايلايت النص المطابق في البحث
 const Highlight = ({ text, query }) => {
@@ -19,7 +19,6 @@ const Highlight = ({ text, query }) => {
 };
 
 const ProductCard = ({ product, addToCart, index, viewMode, searchQuery, isInWishlist, onToggleWishlist, isInCompare, onToggleCompare, onOpenGallery }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   const renderStars = (rating) =>
     Array.from({ length: 5 }, (_, i) => (
@@ -32,12 +31,14 @@ const ProductCard = ({ product, addToCart, index, viewMode, searchQuery, isInWis
       style={{ animationDelay: `${index * 0.04}s` }}
     >
       <div className="product-image">
-        {!imageLoaded && <div className="image-loader"></div>}
-        <img
+        <OptimizedImage
           src={product.image}
           alt={product.name}
-          onLoad={() => setImageLoaded(true)}
-          style={{ opacity: imageLoaded ? 1 : 0 }}
+          width={600}
+          height={420}
+          sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, (max-width: 980px) 33vw, 25vw"
+          fill
+          objectFit="cover"
         />
         <div className="product-badges">
           {product.isNew && <span className="product-badge new">جديد</span>}

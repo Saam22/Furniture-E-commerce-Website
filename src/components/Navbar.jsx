@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { categories } from '../data/productsData';
+import { useAuth } from './AuthContext';
 import '../styles/Navbar.css';
 
 const NAV_ICONS = {
@@ -32,7 +33,12 @@ const Navbar = ({
   pointsBalance,
   selectedCategory,
   onSelectCategory,
+  onLoginClick,
+  onRegisterClick,
 }) => {
+  const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -86,6 +92,9 @@ const Navbar = ({
       if (moreMenuRef.current && !moreMenuRef.current.contains(e.target)) {
         setShowMoreMenu(false);
       }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -126,7 +135,6 @@ const Navbar = ({
   ];
 
   const moreActions = [
-    ...(orderCount > 0 ? [{ id: 'tracking', icon: '📦', label: 'تتبع الطلبات', onClick: () => { onTrackingClick(); setShowMoreMenu(false); } }] : []),
     { id: 'loyalty', icon: '✦', label: 'برنامج الولاء', onClick: () => { onLoyaltyClick(); setShowMoreMenu(false); }, badge: pointsBalance > 0 ? pointsBalance : null },
     { id: 'compare', icon: '⚖️', label: 'المقارنة', onClick: () => { onCompareClick(); setShowMoreMenu(false); }, badge: compareCount > 0 ? compareCount : null },
     { id: 'designer', icon: '✎', label: 'صمم قطعتك', onClick: () => { handleNavClick('designer'); setShowMoreMenu(false); } },
@@ -186,6 +194,49 @@ const Navbar = ({
                   <button className="search-clear-btn" onClick={() => onSearch('')}>×</button>
                 )}
               </div>
+
+              {user ? (
+                <div className="user-menu-container" ref={userMenuRef}>
+                  <button
+                    className="icon-btn user-btn"
+                    onClick={() => setShowUserMenu(p => !p)}
+                    title="حسابي"
+                  >
+                    <span>👤</span>
+                  </button>
+                  {showUserMenu && (
+                    <div className="user-dropdown">
+                      <div className="user-dropdown-header">
+                        <span className="user-dropdown-name">{user.name}</span>
+                        <span className="user-dropdown-email">{user.email}</span>
+                      </div>
+                      {user?.role === 'admin' && (
+                        <button className="user-dropdown-item" onClick={() => { onNavigate('admin'); setShowUserMenu(false); }}>
+                          <span>⚙️</span>
+                          <span>لوحة الإدارة</span>
+                        </button>
+                      )}
+                      <button className="user-dropdown-item" onClick={() => { onNavigate('tracking'); setShowUserMenu(false); }}>
+                        <span>📦</span>
+                        <span>تتبع الطلبات</span>
+                      </button>
+                      <button className="user-dropdown-item" onClick={() => { logout(); setShowUserMenu(false); }}>
+                        <span>🚪</span>
+                        <span>تسجيل الخروج</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <button className="auth-btn login-btn" onClick={onLoginClick}>
+                    تسجيل الدخول
+                  </button>
+                  <button className="auth-btn register-btn" onClick={onRegisterClick}>
+                    إنشاء حساب
+                  </button>
+                </>
+              )}
 
               <button
                 className="icon-btn theme-btn"
@@ -318,18 +369,45 @@ const Navbar = ({
           </div>
 
           <div className="mobile-nav-links">
+            <span className="mobile-nav-section-title">الحساب</span>
+            {user ? (
+              <>
+                <div className="mobile-user-info">
+                  <span>{user.name}</span>
+                  <span className="mobile-user-email">{user.email}</span>
+                </div>
+                {user?.role === 'admin' && (
+                  <button className="mobile-nav-item" onClick={() => { onNavigate('admin'); setIsMobileMenuOpen(false); }}>
+                    <span className="mobile-nav-item-icon">⚙️</span>
+                    <span>لوحة الإدارة</span>
+                  </button>
+                )}
+                <button className="mobile-nav-item" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>
+                  <span className="mobile-nav-item-icon">🚪</span>
+                  <span>تسجيل الخروج</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="mobile-nav-item" onClick={() => { onLoginClick(); setIsMobileMenuOpen(false); }}>
+                  <span className="mobile-nav-item-icon">🔑</span>
+                  <span>تسجيل الدخول</span>
+                </button>
+                <button className="mobile-nav-item" onClick={() => { onRegisterClick(); setIsMobileMenuOpen(false); }}>
+                  <span className="mobile-nav-item-icon">➕</span>
+                  <span>إنشاء حساب</span>
+                </button>
+              </>
+            )}
+          </div>
+
+          <div className="mobile-nav-links">
             <span className="mobile-nav-section-title">الإجراءات</span>
             <button className="mobile-nav-item" onClick={() => { onLoyaltyClick(); setIsMobileMenuOpen(false); }}>
               <span className="mobile-nav-item-icon">✦</span>
               <span>برنامج الولاء</span>
               {pointsBalance > 0 && <span className="mobile-nav-badge">{pointsBalance}</span>}
             </button>
-            {orderCount > 0 && (
-              <button className="mobile-nav-item" onClick={() => { onTrackingClick(); setIsMobileMenuOpen(false); }}>
-                <span className="mobile-nav-item-icon">📦</span>
-                <span>تتبع الطلبات</span>
-              </button>
-            )}
             <button className="mobile-nav-item" onClick={() => { onCompareClick(); setIsMobileMenuOpen(false); }}>
               <span className="mobile-nav-item-icon">⚖️</span>
               <span>المقارنة</span>

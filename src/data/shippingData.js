@@ -72,6 +72,7 @@ export const ORDER_STATUSES = [
   { id: 'shipped', label: 'تم الشحن', icon: '📦' },
   { id: 'out_for_delivery', label: 'خرج للتوصيل', icon: '🚚' },
   { id: 'delivered', label: 'تم التوصيل', icon: '✅' },
+  { id: 'cancelled', label: 'ملغي', icon: '✕' },
 ]
 
 export const DEFAULT_CITY = { zone: 'cairo', city: 'القاهرة' }

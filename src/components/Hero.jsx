@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import OptimizedImage from './OptimizedImage';
 import '../styles/Hero.css';
 
 const Hero = () => {
@@ -43,6 +44,15 @@ const Hero = () => {
   ];
 
   useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = slides[0].image;
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+
+  useEffect(() => {
     if (isPaused) return undefined;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -64,7 +74,16 @@ const Hero = () => {
         {slides.map((slide, index) => (
           <div key={slide.id} className={`hero-slide ${index === currentSlide ? 'active' : ''}`}>
             <div className="hero-background">
-              <img src={slide.image} alt={slide.title} />
+              <OptimizedImage
+                src={slide.image}
+                alt={slide.title}
+                width={1600}
+                height={1000}
+                sizes="100vw"
+                priority={index === 0}
+                fill
+                objectFit="cover"
+              />
               <div className="hero-overlay"></div>
             </div>
 

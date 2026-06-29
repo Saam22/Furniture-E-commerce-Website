@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Categories from './components/Categories';
@@ -15,12 +15,23 @@ import ProductGallery from './components/ProductGallery';
 import LoyaltyDashboard from './components/LoyaltyDashboard';
 import BundlesPage from './components/BundlesPage';
 import OffersPage from './components/OffersPage';
+import AdminPage from './components/AdminPage';
 import Footer from './components/Footer';
 import { productsData } from './data/productsData';
-import { createOrder } from './utils/shippingUtils';
+import { createOrder as createLocalOrder } from './utils/shippingUtils';
 import { addPoints, applyReferralBonus, getPointsBalance } from './data/loyaltyData';
 
+import { AuthProvider, useAuth, setAuthListeners } from './components/AuthContext';
+import Login from './components/Login';
+import Register from './components/Register';
+import { fetchCart, addToCartApi, removeFromCartApi, updateCartItemApi, clearCartApi } from './utils/cartApi';
+import { fetchWishlist, toggleWishlistApi } from './utils/wishlistApi';
+import { getServerProductMap, findServerId, toFrontendCartItems } from './utils/productMap';
+import { createOrderApi, fetchOrdersApi, cancelOrderApi } from './utils/orderApi';
+import { fetchLoyaltyInfo } from './utils/loyaltyApi';
+
 import './App.css';
+import './styles/OptimizedImage.css';
 import './styles/Navbar.css';
 import './styles/Hero.css';
 import './styles/Products.css';
@@ -37,18 +48,38 @@ import './styles/Reviews.css';
 import './styles/LoyaltyDashboard.css';
 import './styles/Bundles.css';
 import './styles/OffersPage.css';
+import './styles/Auth.css';
+import './styles/Admin.css';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+function AppContent() {
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+  const productMapRef = useRef(null);
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const saved = localStorage.getItem('furnitureCurrentPage');
+    return saved || 'home';
+  });
+
+  const setCurrentPagePersisted = useCallback((page) => {
+    setCurrentPage(page);
+    localStorage.setItem('furnitureCurrentPage', page);
+  }, []);
+
+  const currentPageRef = useRef(currentPage);
+  currentPageRef.current = currentPage;
+
+  useEffect(() => {
+    setAuthListeners(
+      () => {},
+      () => { if (currentPageRef.current === 'admin') setCurrentPagePersisted('home'); }
+    );
+  }, [setCurrentPagePersisted]);
+
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem('furnitureCart');
     if (!savedCart) return [];
-    try {
-      return JSON.parse(savedCart);
-    } catch (error) {
-      console.error('Error loading cart:', error);
-      return [];
-    }
+    try { return JSON.parse(savedCart); } catch { return []; }
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -56,20 +87,16 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '' });
   const [searchQuery, setSearchQuery] = useState('');
-
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  const [orders, setOrders] = useState(() => {
+const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('furnitureOrders');
     if (!saved) return [];
     try {
       const parsed = JSON.parse(saved);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.filter(o => o && typeof o === 'object' && o.id);
+      return Array.isArray(parsed) ? parsed.filter(o => o && typeof o === 'object' && o.id) : [];
     } catch { return []; }
   });
-
-  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
 
   const [orderCount, setOrderCount] = useState(() => {
     const saved = localStorage.getItem('furnitureOrderCount');
@@ -100,54 +127,180 @@ function App() {
   const [galleryProduct, setGalleryProduct] = useState(null);
   const [minRating, setMinRating] = useState(0);
   const [isLoyaltyOpen, setIsLoyaltyOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [pointsTrigger, setPointsTrigger] = useState(0);
 
-  const toggleCompare = (productId) => {
-    setCompareIds(prev => {
-      if (prev.includes(productId)) return prev.filter(id => id !== productId);
-      if (prev.length >= 4) {
-        showNotification('يمكن مقارنة 4 منتجات كحد أقصى');
-        return prev;
-      }
-      return [...prev, productId];
-    });
-  };
+  const prevUserRef = useRef(user);
 
-  const isInCompare = (productId) => compareIds.includes(productId);
+  const showNotification = useCallback((message) => {
+    setNotification({ show: true, message });
+    setTimeout(() => setNotification({ show: false, message: '' }), 3000);
+  }, []);
+
+  const getServerId = useCallback(async (frontendProduct) => {
+    if (!productMapRef.current) {
+      productMapRef.current = await getServerProductMap();
+    }
+    return productMapRef.current?.get(frontendProduct.name) || null;
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('furnitureCompare', JSON.stringify(compareIds));
-  }, [compareIds]);
+    const prev = prevUserRef.current;
+    prevUserRef.current = user;
 
-  const toggleWishlist = (productId) => {
-    setWishlist(prev =>
-      prev.includes(productId)
+    if (user && !prev) {
+      const doSync = async () => {
+        productMapRef.current = await getServerProductMap();
+        try {
+          const sc = await fetchCart();
+          const converted = toFrontendCartItems(sc, productsData);
+          setCartItems(converted);
+          localStorage.setItem('furnitureCart', JSON.stringify(converted));
+        } catch { }
+        try {
+          const wishlistData = await fetchWishlist();
+          const map = productMapRef.current;
+          const wishlistIds = wishlistData.map(p => p._id);
+          const frontendIds = productsData
+            .filter(fp => wishlistIds.some(sid => sid === map?.get(fp.name)))
+            .map(fp => fp.id);
+          setWishlist(frontendIds);
+          localStorage.setItem('furnitureWishlist', JSON.stringify(frontendIds));
+        } catch { }
+        try {
+          const { orders: serverOrders } = await fetchOrdersApi();
+          if (serverOrders?.length) {
+            setOrders(prev => {
+              const localIds = new Set(prev.map(o => o.id));
+              const merged = [...prev];
+              for (const so of serverOrders) {
+                const mapped = toFrontendOrder(so);
+                if (!localIds.has(mapped.id)) {
+                  merged.push(mapped);
+                  localIds.add(mapped.id);
+                }
+              }
+              localStorage.setItem('furnitureOrders', JSON.stringify(merged));
+              return merged;
+            });
+          }
+        } catch { }
+        try {
+          const li = await fetchLoyaltyInfo();
+          if (li.points !== undefined) {
+            localStorage.setItem('furniturePoints', String(li.points));
+          }
+        } catch { }
+      };
+      doSync();
+    } else if (!user && prev) {
+      setCartItems([]);
+      setWishlist([]);
+      setOrders([]);
+      setOrderCount(0);
+      localStorage.removeItem('furnitureCart');
+      localStorage.removeItem('furnitureWishlist');
+      localStorage.removeItem('furnitureOrders');
+      localStorage.removeItem('furnitureOrderCount');
+    }
+  }, [user]);
+
+  const addToCart = useCallback(async (product) => {
+    if (isLoggedIn) {
+      try {
+        const sid = await getServerId(product);
+        if (sid) await addToCartApi(sid);
+      } catch { }
+    }
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      const updated = existing
+        ? prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
+        : [...prev, { ...product, quantity: 1 }];
+      localStorage.setItem('furnitureCart', JSON.stringify(updated));
+      return updated;
+    });
+    showNotification('تمت الإضافة للسلة بنجاح');
+    setIsCartOpen(true);
+  }, [isLoggedIn, getServerId, showNotification]);
+
+  const removeFromCart = useCallback(async (productId) => {
+    if (isLoggedIn) {
+      const fp = productsData.find(p => p.id === productId);
+      if (fp) {
+        const sid = await getServerId(fp);
+        if (sid) try { await removeFromCartApi(sid); } catch { }
+      }
+    }
+    setCartItems(prev => {
+      const updated = prev.filter(item => item.id !== productId);
+      localStorage.setItem('furnitureCart', JSON.stringify(updated));
+      return updated;
+    });
+    showNotification('تم حذف المنتج من السلة');
+  }, [isLoggedIn, getServerId, showNotification]);
+
+  const updateQuantity = useCallback(async (productId, newQuantity) => {
+    if (newQuantity === 0) {
+      removeFromCart(productId);
+      return;
+    }
+    if (isLoggedIn) {
+      const fp = productsData.find(p => p.id === productId);
+      if (fp) {
+        const sid = await getServerId(fp);
+        if (sid) try { await updateCartItemApi(sid, newQuantity); } catch { }
+      }
+    }
+    setCartItems(prev => {
+      const updated = prev.map(item =>
+        item.id === productId ? { ...item, quantity: newQuantity } : item
+      );
+      localStorage.setItem('furnitureCart', JSON.stringify(updated));
+      return updated;
+    });
+  }, [isLoggedIn, getServerId, removeFromCart]);
+
+  const clearCart = useCallback(async () => {
+    if (isLoggedIn) {
+      try { await clearCartApi(); } catch { }
+    }
+    setCartItems([]);
+    localStorage.removeItem('furnitureCart');
+    showNotification('تم تفريغ السلة');
+  }, [isLoggedIn, showNotification]);
+
+  const toggleWishlist = useCallback(async (productId) => {
+    if (isLoggedIn) {
+      const fp = productsData.find(p => p.id === productId);
+      if (fp) {
+        const sid = await getServerId(fp);
+        if (sid) {
+          try {
+            await toggleWishlistApi(sid);
+          } catch { }
+        }
+      }
+    }
+    setWishlist(prev => {
+      const updated = prev.includes(productId)
         ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
+        : [...prev, productId];
+      localStorage.setItem('furnitureWishlist', JSON.stringify(updated));
+      return updated;
+    });
+  }, [isLoggedIn, getServerId]);
 
   const isInWishlist = (productId) => wishlist.includes(productId);
 
   useEffect(() => {
-    localStorage.setItem('furnitureWishlist', JSON.stringify(wishlist));
-  }, [wishlist]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const wishlistParam = params.get('wishlist');
-    if (wishlistParam) {
-      const ids = wishlistParam.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
-      if (ids.length > 0) {
-        setWishlist(ids);
-        setIsWishlistOpen(true);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem('furnitureCart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureWishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
 
   useEffect(() => {
     localStorage.setItem('furnitureOrders', JSON.stringify(orders));
@@ -156,6 +309,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('furnitureOrderCount', String(orderCount));
   }, [orderCount]);
+
+  useEffect(() => {
+    localStorage.setItem('furnitureCompare', JSON.stringify(compareIds));
+  }, [compareIds]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -170,61 +327,120 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const showNotification = (message) => {
-    setNotification({ show: true, message });
-    setTimeout(() => setNotification({ show: false, message: '' }), 3000);
-  };
-
-  const addToCart = (product) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      return existing
-        ? prev.map(item =>
-            item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-          )
-        : [...prev, { ...product, quantity: 1 }];
-    });
-    showNotification('تمت الإضافة للسلة بنجاح');
-    setIsCartOpen(true);
-  };
-
-  const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter((item) => item.id !== productId));
-    showNotification('تم حذف المنتج من السلة');
-  };
-
-  const updateQuantity = (productId, newQuantity) => {
-    if (newQuantity === 0) {
-      removeFromCart(productId);
-      return;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const wishlistParam = params.get('wishlist');
+    if (wishlistParam) {
+      const ids = wishlistParam.split(',').map(Number).filter(n => !isNaN(n) && n > 0);
+      if (ids.length > 0) { setWishlist(ids); setIsWishlistOpen(true); }
     }
-    setCartItems(cartItems.map((item) =>
-      item.id === productId ? { ...item, quantity: newQuantity } : item
-    ));
+  }, []);
+
+  function toFrontendOrder(so) {
+    return {
+      id: so._id,
+      orderId: so.orderId || so._id.slice(-8).toUpperCase(),
+      items: (so.items || []).map(i => ({
+        id: i.product?._id || i.product || i.name,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image || '',
+      })),
+      total: so.grandTotal || 0,
+      subtotal: so.subtotal || 0,
+      shipping: so.shipping?.cost || 0,
+      discount: so.discounts?.totalDiscount || 0,
+      status: so.status || 'pending',
+      date: so.createdAt ? new Date(so.createdAt).toISOString() : new Date().toISOString(),
+      delivery: so.shipping ? {
+        zoneId: so.shipping.zoneId,
+        city: so.shipping.city,
+        express: so.shipping.express,
+        cost: so.shipping.cost,
+        freeShipping: so.shipping.cost === 0,
+        eta: so.shipping.eta,
+        address: so.shipping.address || '',
+        phone: so.shipping.phone || '',
+      } : null,
+      pointsEarned: so.pointsEarned || 0,
+      couponCode: so.discounts?.coupon?.code || null,
+      couponCodeDiscount: so.discounts?.coupon?.amount || 0,
+    };
+  }
+
+  const toggleCompare = (productId) => {
+    setCompareIds(prev => {
+      if (prev.includes(productId)) return prev.filter(id => id !== productId);
+      if (prev.length >= 4) { showNotification('يمكن مقارنة 4 منتجات كحد أقصى'); return prev; }
+      return [...prev, productId];
+    });
   };
 
-  const clearCart = () => {
-    setCartItems([]);
-    showNotification('تم تفريغ السلة');
-  };
+  const isInCompare = (productId) => compareIds.includes(productId);
 
-  const handleCheckout = (checkoutInfo) => {
+  const handleCheckout = async (checkoutInfo) => {
     if (cartItems.length === 0) return;
-    const order = createOrder(cartItems, calculateTotal(), checkoutInfo.discountInfo, checkoutInfo.delivery, checkoutInfo.grandTotal);
-    setOrders(prev => [...prev, order]);
+
+    const localOrder = createLocalOrder(cartItems, calculateTotal(), checkoutInfo.discountInfo, checkoutInfo.delivery, checkoutInfo.grandTotal);
+
+    if (isLoggedIn) {
+      try {
+        const serverOrder = await createOrderApi({
+          shipping: {
+            zoneId: checkoutInfo.delivery.zoneId,
+            city: checkoutInfo.delivery.city,
+            express: checkoutInfo.delivery.express || false,
+            address: checkoutInfo.delivery.address || '',
+            phone: checkoutInfo.delivery.phone || '',
+          },
+          paymentMethod: 'cod',
+          couponCode: appliedCoupon || undefined,
+        });
+        localOrder.id = serverOrder._id;
+        localOrder.orderId = serverOrder.orderId;
+        localOrder.pointsEarned = serverOrder.pointsEarned || 0;
+      } catch (err) {
+        showNotification('فشل إنشاء الطلب: ' + err.message);
+        return;
+      }
+    }
+
+    setOrders(prev => [...prev, localOrder]);
     setOrderCount(prev => prev + 1);
     setCartItems([]);
+    localStorage.removeItem('furnitureCart');
     setAppliedCoupon(null);
 
-    const earned = checkoutInfo.earnedPoints || 0;
-    if (earned > 0) {
-      addPoints(earned, 'نقاط من طلب');
+    if (isLoggedIn) {
+      clearCartApi().catch(() => {});
+    } else {
+      const earned = checkoutInfo.earnedPoints || 0;
+      if (earned > 0) addPoints(earned, 'نقاط من طلب');
+      applyReferralBonus();
     }
-    applyReferralBonus();
     setPointsTrigger(p => p + 1);
 
     showNotification('تم تأكيد الطلب بنجاح');
     setIsCartOpen(false);
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!orderId) return;
+    const isServerOrder = /^[a-f\d]{24}$/i.test(orderId);
+    try {
+      if (isLoggedIn && isServerOrder) {
+        await cancelOrderApi(orderId);
+      }
+      setOrders(prev =>
+        prev.map(o =>
+          o.id === orderId ? { ...o, status: 'cancelled' } : o
+        )
+      );
+      showNotification('تم إلغاء الطلب');
+    } catch (err) {
+      showNotification('فشل إلغاء الطلب: ' + err.message);
+    }
   };
 
   const handleApplyCoupon = (code) => setAppliedCoupon(code);
@@ -234,36 +450,32 @@ function App() {
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const calculateSavings = () =>
-    cartItems.reduce(
-      (total, item) => total + (item.originalPrice - item.price) * item.quantity,
-      0
-    );
+    cartItems.reduce((total, item) => total + (item.originalPrice - item.price) * item.quantity, 0);
 
-  // فلترة بالكاتيجوري + البحث + التقييم
   const filteredProducts = productsData.filter((product) => {
-    const matchesCategory =
-      selectedCategory === 'all' || product.category === selectedCategory;
-    const matchesSearch =
-      searchQuery.trim() === '' ||
+    const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
+    const matchesSearch = searchQuery.trim() === '' ||
       product.name.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
-      (product.description &&
-        product.description.toLowerCase().includes(searchQuery.trim().toLowerCase()));
+      (product.description && product.description.toLowerCase().includes(searchQuery.trim().toLowerCase()));
     const matchesRating = minRating === 0 || product.rating >= minRating;
     return matchesCategory && matchesSearch && matchesRating;
   });
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev);
 
-  // لما المستخدم يبحث، نسكرول لقسم المنتجات
   const handleSearch = (query) => {
     setSearchQuery(query);
     if (query.trim()) {
       const productsSection = document.getElementById('products');
-      if (productsSection) {
-        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      if (productsSection) productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  const openLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
+  const openRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
+  const closeAuth = () => { setIsLoginOpen(false); setIsRegisterOpen(false); };
+  const switchToRegister = () => { setIsLoginOpen(false); setIsRegisterOpen(true); };
+  const switchToLogin = () => { setIsRegisterOpen(false); setIsLoginOpen(true); };
 
   return (
     <div className="App">
@@ -274,10 +486,10 @@ function App() {
         isDarkMode={isDarkMode}
         searchQuery={searchQuery}
         onSearch={handleSearch}
-        onTrackingClick={() => setIsTrackingOpen(true)}
+        onTrackingClick={() => trackingRef.current?.scrollIntoView({ behavior: 'smooth' })}
         orderCount={orderCount}
         currentPage={currentPage}
-        onNavigate={setCurrentPage}
+        onNavigate={setCurrentPagePersisted}
         wishlistCount={wishlist.length}
         onWishlistClick={() => setIsWishlistOpen(true)}
         compareCount={compareIds.length}
@@ -286,14 +498,14 @@ function App() {
         pointsBalance={getPointsBalance()}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
+        onLoginClick={openLogin}
+        onRegisterClick={openRegister}
       />
 
       {currentPage === 'home' && (
         <>
           <Hero />
-
           <Categories selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
-
           <Products
             products={filteredProducts}
             addToCart={addToCart}
@@ -307,7 +519,6 @@ function App() {
             minRating={minRating}
             onRatingChange={setMinRating}
           />
-
           <Testimonials />
           <Newsletter />
           <Footer />
@@ -319,7 +530,7 @@ function App() {
       )}
 
       {currentPage === 'room' && (
-        <VirtualRoom onAddToCart={addToCart} onClose={() => setCurrentPage('home')} />
+        <VirtualRoom onAddToCart={addToCart} onClose={() => setCurrentPagePersisted('home')} />
       )}
 
       {currentPage === 'offers' && (
@@ -327,8 +538,16 @@ function App() {
       )}
 
       {currentPage === 'bundles' && (
-        <BundlesPage addToCart={addToCart} />
-      )}
+          <BundlesPage addToCart={addToCart} />
+        )}
+
+        {currentPage === 'admin' && (
+          <AdminPage onClose={() => setCurrentPagePersisted('home')} />
+        )}
+
+        {currentPage === 'tracking' && (
+          <OrderTracking orders={orders} onCancelOrder={handleCancelOrder} />
+        )}
 
       {isCartOpen && (
         <Cart
@@ -344,14 +563,9 @@ function App() {
           onRemoveCoupon={handleRemoveCoupon}
           orderCount={orderCount}
           onCheckout={handleCheckout}
+          user={user}
+          onLoginClick={openLogin}
         />
-      )}
-
-      {isTrackingOpen && (
-        <>
-          <div className="cart-overlay" onClick={() => setIsTrackingOpen(false)}></div>
-          <OrderTracking orders={orders} onClose={() => setIsTrackingOpen(false)} />
-        </>
       )}
 
       {isWishlistOpen && (
@@ -388,10 +602,7 @@ function App() {
       )}
 
       {showScrollTop && (
-        <button
-          className="scroll-to-top"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        >
+        <button className="scroll-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <span>↑</span>
         </button>
       )}
@@ -399,7 +610,23 @@ function App() {
       {notification.show && (
         <div className="notification show">{notification.message}</div>
       )}
+
+      {isLoginOpen && (
+        <Login onSwitch={switchToRegister} onClose={closeAuth} />
+      )}
+
+      {isRegisterOpen && (
+        <Register onSwitch={switchToLogin} onClose={closeAuth} />
+      )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

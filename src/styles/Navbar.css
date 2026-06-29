@@ -700,4 +700,142 @@ html.dark .mobile-nav-item.active .mobile-nav-item-icon {
     height: 34px;
     font-size: 1rem;
   }
+
+  .auth-btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
+
+.auth-btn {
+  background: none;
+  border: 2px solid var(--accent, #8b5a2b);
+  color: var(--accent, #8b5a2b);
+  padding: 0.4rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.auth-btn:hover {
+  background: var(--accent, #8b5a2b);
+  color: #fff;
+}
+
+.register-btn {
+  background: var(--accent, #8b5a2b);
+  color: #fff;
+}
+
+.register-btn:hover {
+  background: var(--accent-hover, #734a1f);
+  border-color: var(--accent-hover, #734a1f);
+}
+
+.dark .auth-btn {
+  border-color: #c9955b;
+  color: #c9955b;
+}
+
+.dark .auth-btn:hover {
+  background: #c9955b;
+  color: #1a1a2e;
+}
+
+.dark .register-btn {
+  background: #c9955b;
+  color: #1a1a2e;
+}
+
+.dark .register-btn:hover {
+  background: #b8884f;
+}
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-btn {
+  font-size: 1.15rem;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  min-width: 200px;
+  z-index: 1000;
+  direction: rtl;
+}
+
+.dark .user-dropdown {
+  background: #222236;
+  border-color: #3a3a4e;
+}
+
+.user-dropdown-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dark .user-dropdown-header {
+  border-bottom-color: #3a3a4e;
+}
+
+.user-dropdown-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.user-dropdown-email {
+  font-size: 0.8rem;
+  color: var(--text-muted, #777);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary, #222);
+  text-align: right;
+  font-family: inherit;
+}
+
+.user-dropdown-item:hover {
+  background: var(--bg-secondary, #f5f5f5);
+}
+
+.dark .user-dropdown-item:hover {
+  background: #2a2a3e;
+}
+
+.mobile-user-info {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-weight: 500;
+}
+
+.mobile-user-email {
+  font-size: 0.8rem;
+  color: var(--text-muted, #777);
 }

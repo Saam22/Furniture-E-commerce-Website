@@ -9,11 +9,17 @@ import {
 } from '../data/loyaltyData';
 import '../styles/LoyaltyDashboard.css';
 
-const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings, appliedCoupon, onApplyCoupon, onRemoveCoupon, orderCount, onCheckout }) => {
+const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, total, savings, appliedCoupon, onApplyCoupon, onRemoveCoupon, orderCount, onCheckout, user, onLoginClick }) => {
   const [delivery, setDelivery] = useState({ zoneId: 'cairo', city: 'القاهرة', cost: 0, eta: null, freeShipping: false, express: false });
   const [redeemInput, setRedeemInput] = useState('');
   const [redeemError, setRedeemError] = useState('');
   const [redeemedDiscount, setRedeemedDiscount] = useState(null);
+  const [deliveryAddress, setDeliveryAddress] = useState(() => {
+    try { return localStorage.getItem('furnitureAddress') || ''; } catch { return ''; }
+  });
+  const [deliveryPhone, setDeliveryPhone] = useState(() => {
+    try { return localStorage.getItem('furniturePhone') || ''; } catch { return ''; }
+  });
   const pointsBalance = getPointsBalance();
   const earnedPoints = calcEarnedPoints(total);
   const birthdayMultiplier = isBirthdayMonth() ? 2 : 1;
@@ -51,6 +57,11 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
     setRedeemError('');
   };
 
+  useEffect(() => {
+    localStorage.setItem('furnitureAddress', deliveryAddress);
+    localStorage.setItem('furniturePhone', deliveryPhone);
+  }, [deliveryAddress, deliveryPhone]);
+
   const handleCheckout = () => {
     onCheckout({
       delivery: {
@@ -60,6 +71,8 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
         cost: shippingCost,
         freeShipping,
         eta: delivery.eta,
+        address: deliveryAddress,
+        phone: deliveryPhone,
       },
       discountInfo: {
         discounts: redeemedDiscount
@@ -173,6 +186,27 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                   onDeliveryChange={setDelivery}
                 />
 
+                <div className="delivery-fields">
+                  <div className="auth-field">
+                    <label>عنوان التوصيل</label>
+                    <input
+                      type="text"
+                      placeholder="المدينة، الشارع، رقم المنزل"
+                      value={deliveryAddress}
+                      onChange={e => setDeliveryAddress(e.target.value)}
+                    />
+                  </div>
+                  <div className="auth-field">
+                    <label>رقم الهاتف</label>
+                    <input
+                      type="tel"
+                      placeholder="أدخل رقم الهاتف للتواصل"
+                      value={deliveryPhone}
+                      onChange={e => setDeliveryPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
                 <div className="summary-row">
                   <span>المجموع الفرعي</span>
                   <span>{(total + savings).toLocaleString()} ج.م</span>
@@ -209,7 +243,14 @@ const Cart = ({ cartItems, onClose, removeFromCart, updateQuantity, clearCart, t
                   <span>{grandTotal == null || isNaN(grandTotal) ? '0' : grandTotal.toLocaleString()} ج.م</span>
                 </div>
 
-                <button className="checkout-btn" onClick={handleCheckout}>إتمام الطلب</button>
+                {!user ? (
+                  <div className="cart-login-prompt">
+                    <p>يجب تسجيل الدخول لإتمام الطلب</p>
+                    <button className="checkout-btn" onClick={onLoginClick}>تسجيل الدخول</button>
+                  </div>
+                ) : (
+                  <button className="checkout-btn" onClick={handleCheckout}>إتمام الطلب</button>
+                )}
                 <button className="clear-cart-btn" onClick={clearCart}>تفريغ السلة</button>
 
                 <div className="payment-methods">

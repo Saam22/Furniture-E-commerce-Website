@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import OptimizedImage from './OptimizedImage';
 import { getProductGallery, getProductEnvironments } from '../data/productGallery';
 import { getEffectiveRating } from '../data/reviewsData';
 import ReviewList from './ReviewList';
@@ -9,7 +10,6 @@ const ProductGallery = ({ product, onClose, addToCart }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedEnv, setSelectedEnv] = useState(null);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [loaded, setLoaded] = useState({});
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -70,12 +70,14 @@ const ProductGallery = ({ product, onClose, addToCart }) => {
               onClick={() => !selectedEnv && setIsZoomed(true)}
               style={{ cursor: selectedEnv ? 'default' : 'zoom-in' }}
             >
-              <div className={`gallery-img-wrapper ${loaded[currentImage] ? 'loaded' : ''}`}>
-                {!loaded[currentImage] && <div className="image-loader" />}
-                <img
+              <div className="gallery-img-wrapper">
+                <OptimizedImage
                   src={currentImage}
                   alt={product.name}
-                  onLoad={() => setLoaded(p => ({ ...p, [currentImage]: true }))}
+                  width={800}
+                  height={800}
+                  sizes="(max-width: 768px) 100vw, 60vw"
+                  placeholder="skeleton"
                 />
               </div>
               {selectedEnv && (
@@ -91,10 +93,13 @@ const ProductGallery = ({ product, onClose, addToCart }) => {
                     className={`gallery-thumb ${selectedImage === i ? 'active' : ''}`}
                     onClick={() => handleThumbClick(i)}
                   >
-                    <img
+                    <OptimizedImage
                       src={img}
                       alt={`${product.name} - زاوية ${i + 1}`}
-                      loading="lazy"
+                      width={72}
+                      height={72}
+                      sizes="72px"
+                      placeholder="skeleton"
                     />
                   </button>
                 ))}
@@ -190,7 +195,15 @@ const ProductGallery = ({ product, onClose, addToCart }) => {
         <div className="gallery-zoom-overlay" onClick={() => setIsZoomed(false)}>
           <button className="zoom-close" onClick={() => setIsZoomed(false)} aria-label="إغلاق">✕</button>
           <div className="zoom-container" onClick={e => e.stopPropagation()}>
-            <img src={currentImage} alt={product.name} />
+            <OptimizedImage
+              src={currentImage}
+              alt={product.name}
+              width={1600}
+              height={1600}
+              sizes="90vw"
+              placeholder="none"
+              loading="eager"
+            />
           </div>
           <div className="zoom-hint">اضغط خارج الصورة أو Esc للخروج</div>
         </div>

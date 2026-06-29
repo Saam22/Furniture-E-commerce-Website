@@ -5,7 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "cd server && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "seed": "cd server && npm run seed",
     "build": "vite build",
+    "optimize:images": "node scripts/optimize-images.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

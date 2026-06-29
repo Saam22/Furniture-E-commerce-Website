@@ -553,87 +553,145 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .tracking-order {
   background: var(--bg-card);
-  border-radius: 14px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 0;
   border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: box-shadow 0.25s ease;
 }
 
 .tracking-order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  padding: 14px 16px;
+  gap: 8px;
 }
 
 .tracking-order-id {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--accent-color);
-  font-family: monospace;
-  direction: ltr;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.tracking-order-more {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .tracking-order-date {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tracking-order-status {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+  color: var(--accent-color);
+}
+
+.tracking-order-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tracking-expand-icon {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.tracking-expand-icon.expanded {
+  transform: rotate(180deg);
+  opacity: 0.8;
+}
+
+.tracking-order-header-clickable {
+  cursor: pointer;
+}
+
+.tracking-order-header-clickable:hover {
+  background: color-mix(in srgb, var(--accent-color) 4%, transparent);
+}
+
+.tracking-order-body {
+  padding: 0 16px 14px;
 }
 
 .tracking-timeline {
   display: flex;
-  flex-wrap: wrap;
   gap: 0;
-  margin-bottom: 12px;
   position: relative;
+  direction: ltr;
+  padding: 4px 6px 0;
+  margin-bottom: 10px;
 }
 
 .tracking-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
-  min-width: 50px;
+  min-width: 36px;
   position: relative;
 }
 
-.tracking-step::before {
+.tracking-step::after {
   content: '';
   position: absolute;
-  top: 12px;
-  right: 50%;
+  top: 10px;
+  left: 50%;
   width: 100%;
   height: 2px;
   background: var(--border-color);
   z-index: 0;
+  pointer-events: none;
 }
 
-.tracking-step:first-child::before {
+.tracking-step:last-child::after {
   display: none;
 }
 
-.tracking-step.done::before {
+.tracking-step.done::after {
   background: var(--success);
 }
 
 .tracking-step-dot {
   position: relative;
   z-index: 1;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 900;
   background: var(--bg-card);
   border: 2px solid var(--border-color);
   color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .tracking-step.done .tracking-step-dot {
@@ -649,11 +707,25 @@
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 25%, transparent);
 }
 
+.tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-dot {
+  background: #d32f2f;
+  border-color: #d32f2f;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.25);
+}
+
+html.dark .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-dot {
+  background: #f87171;
+  border-color: #f87171;
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.25);
+}
+
 .tracking-step-label {
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   color: var(--text-secondary);
   text-align: center;
   white-space: nowrap;
+  line-height: 1.1;
 }
 
 .tracking-step.current .tracking-step-label {
@@ -661,26 +733,468 @@
   font-weight: 700;
 }
 
-.tracking-order-summary {
+.tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-label {
+  color: #d32f2f;
+}
+
+html.dark .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-label {
+  color: #f87171;
+}
+
+.tracking-order-items {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  padding-top: 10px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
   border-top: 1px solid var(--border-color);
 }
 
-.tracking-delivery-info {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  margin-top: 6px;
+.tracking-order-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 4px 8px;
-  background: var(--soft-color);
-  border-radius: 6px;
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+.tracking-order-item:hover {
+  background: color-mix(in srgb, var(--accent-color) 4%, transparent);
+}
+
+.tracking-item-image-wrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.tracking-item-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tracking-item-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tracking-item-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tracking-item-qty {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+}
+
+.tracking-item-price {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  white-space: nowrap;
+}
+
+.tracking-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.tracking-order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.tracking-summary-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.tracking-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  padding: 2px 0;
+}
+
+.tracking-summary-row.discount span:last-child {
+  color: #2e7d32;
+}
+
+html.dark .tracking-summary-row.discount span:last-child {
+  color: #66bb6a;
+}
+
+.tracking-summary-row.grand-total {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tracking-summary-row.points span:last-child {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.tracking-summary-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.tracking-coupon-badge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+  color: var(--accent-color);
+  font-weight: 700;
+  font-family: monospace;
+  direction: ltr;
+}
+
+.tracking-order-info {
+  padding: 12px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.tracking-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+
+.tracking-info-row span:first-child {
+  font-weight: 600;
+}
+
+.tracking-cancel-btn {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1.5px solid #d32f2f;
+  color: #d32f2f;
+  background: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-top: 4px;
+}
+
+.tracking-cancel-btn:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+html.dark .tracking-cancel-btn {
+  border-color: #f87171;
+  color: #f87171;
+}
+
+html.dark .tracking-cancel-btn:hover {
+  background: #f87171;
+  color: #1a1a2e;
 }
 
 html.dark .tracking-sidebar {
   background: var(--bg-primary);
+}
+
+/* ===== Order Tracking Page Mode ===== */
+.tracking-page {
+  position: static !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 100vh;
+  box-shadow: none !important;
+  animation: none !important;
+  background: var(--bg-primary) !important;
+  padding: 2rem 1rem;
+}
+
+.tracking-page .cart-header {
+  padding: 2rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.tracking-page .cart-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tracking-page .tracking-tabs {
+  padding: 0 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tracking-page .tracking-orders {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.tracking-page .empty-cart {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.tracking-page .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.tracking-page .tracking-order {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-radius: 20px;
+}
+
+.tracking-page .tracking-order-header {
+  padding: 20px 24px;
+}
+
+.tracking-page .tracking-order-body {
+  padding: 0 24px 24px;
+}
+
+.tracking-page .tracking-order-id {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.tracking-page .tracking-order-date {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.tracking-page .tracking-order-status {
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
+.tracking-page .tracking-expand-icon {
+  font-size: 1.2rem;
+}
+
+.tracking-page .tracking-timeline {
+  gap: 14px;
+}
+
+.tracking-page .tracking-step {
+  min-width: 110px;
+  flex: 1;
+}
+
+.tracking-page .tracking-step-label {
+  font-size: 0.9rem;
+  line-height: 1.3;
+  font-weight: 500;
+  white-space: normal;
+  overflow: visible;
+}
+
+.tracking-page .tracking-step-dot {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+}
+
+/* Make cancelled step very visible */
+.tracking-page .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-dot {
+  background: #d32f2f;
+  border-color: #d32f2f;
+  color: #fff;
+  box-shadow: 0 0 0 5px rgba(211, 47, 47, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.tracking-page .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-label {
+  color: #d32f2f;
+  font-weight: 700;
+  font-size: 0.95rem;
+  background: rgba(211, 47, 47, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+html.dark .tracking-page .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-dot {
+  background: #f87171;
+  border-color: #f87171;
+  box-shadow: 0 0 0 5px rgba(248, 113, 113, 0.3);
+}
+
+html.dark .tracking-page .tracking-timeline.cancelled .tracking-step.cancelled-step .tracking-step-label {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+}
+
+/* Wrong steps for cancelled orders - show as red X inside circle with red glow */
+.tracking-page .tracking-step.wrong-step .tracking-step-dot {
+  background: #fff;
+  border: 2px solid #d32f2f;
+  color: #d32f2f;
+  box-shadow: 
+    0 0 0 4px rgba(211, 47, 47, 0.15),
+    0 0 12px rgba(211, 47, 47, 0.4),
+    inset 0 0 8px rgba(211, 47, 47, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.tracking-page .tracking-step.wrong-step .tracking-step-dot::after {
+  content: '✕';
+  font-size: 1.2rem;
+  font-weight: bold;
+  line-height: 1;
+  text-shadow: 0 0 4px rgba(211, 47, 47, 0.8);
+}
+
+.tracking-page .tracking-step.wrong-step .tracking-step-dot::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(211, 47, 47, 0.3) 0%, transparent 70%);
+  animation: wrongPulse 2s ease-in-out infinite;
+}
+
+.tracking-page .tracking-step.wrong-step .tracking-step-label {
+  color: #d32f2f;
+  font-weight: 600;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+html.dark .tracking-page .tracking-step.wrong-step .tracking-step-dot {
+  border-color: #f87171;
+  color: #f87171;
+  box-shadow: 
+    0 0 0 4px rgba(248, 113, 113, 0.15),
+    0 0 12px rgba(248, 113, 113, 0.4),
+    inset 0 0 8px rgba(248, 113, 113, 0.2);
+}
+
+html.dark .tracking-page .tracking-step.wrong-step .tracking-step-dot::after {
+  text-shadow: 0 0 4px rgba(248, 113, 113, 0.8);
+}
+
+html.dark .tracking-page .tracking-step.wrong-step .tracking-step-dot::before {
+  background: radial-gradient(circle, rgba(248, 113, 113, 0.3) 0%, transparent 70%);
+}
+
+html.dark .tracking-page .tracking-step.wrong-step .tracking-step-label {
+  color: #f87171;
+}
+
+@keyframes wrongPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.15); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(211, 47, 47, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(211, 47, 47, 0.2); }
+}
+
+.tracking-page .tracking-order-items {
+  padding-top: 16px;
+}
+
+.tracking-page .tracking-order-item {
+  gap: 16px;
+}
+
+.tracking-page .tracking-item-image-wrapper img {
+  width: 80px;
+  height: 80px;
+}
+
+.tracking-page .tracking-item-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tracking-page .tracking-item-qty {
+  font-size: 0.9rem;
+}
+
+.tracking-page .tracking-item-price {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tracking-page .tracking-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.tracking-page .tracking-summary-row {
+  font-size: 1rem;
+  padding: 10px 0;
+}
+
+.tracking-page .tracking-summary-row.grand-total {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.tracking-page .tracking-info-row {
+  font-size: 1rem;
+  padding: 10px 0;
+}
+
+.tracking-page .tracking-cancel-btn {
+  font-size: 1rem;
+  padding: 14px 24px;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .tracking-page {
+    padding: 1rem 0.5rem;
+  }
+  .tracking-page .cart-header {
+    padding: 0 0.5rem 1rem;
+  }
+  .tracking-page .tracking-tabs {
+    padding: 0 0.5rem;
+  }
+  .tracking-page .tracking-orders {
+    padding: 0 0.5rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -694,31 +1208,120 @@ html.dark .tracking-sidebar {
     gap: 4px;
   }
 
-  .tracking-order {
-    padding: 12px;
-  }
-
   .tracking-step {
-    min-width: 44px;
+    min-width: 40px;
   }
 
   .tracking-step-label {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
   }
 }
 
 @media (max-width: 420px) {
   .tracking-step {
-    min-width: 40px;
+    min-width: 36px;
   }
   .tracking-step-label {
-    font-size: 0.5rem;
-  }
-  .delivery-zones {
-    max-height: 140px;
+    font-size: 0.45rem;
   }
 
-  .tracking-timeline {
+.tracking-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 16px;
+  margin-bottom: 14px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.tracking-tab {
+  flex: 1;
+  padding: 7px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tracking-tab:hover {
+  color: var(--accent-color);
+}
+
+.tracking-tab.active {
+  background: var(--bg-card);
+  color: var(--accent-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tracking-tab.active.cancelled-tab {
+  color: #d32f2f;
+}
+
+.tracking-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 8.5px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.55rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tracking-tab.active .tracking-tab-count {
+  background: color-mix(in srgb, var(--accent-color) 15%, transparent);
+  color: var(--accent-color);
+}
+
+.tracking-tab.active.cancelled-tab .tracking-tab-count {
+  background: color-mix(in srgb, #d32f2f 15%, transparent);
+  color: #d32f2f;
+}
+
+.tracking-tab-count.cancelled {
+  background: color-mix(in srgb, #d32f2f 12%, transparent);
+  color: #d32f2f;
+}
+
+html.dark .tracking-tabs {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html.dark .tracking-tab.active {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .tracking-tab.active.cancelled-tab {
+  color: #f87171;
+}
+
+html.dark .tracking-tab.active .tracking-tab-count {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+html.dark .tracking-tab.active.cancelled-tab .tracking-tab-count {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.tracking-timeline {
     gap: 0;
   }
 }
@@ -781,4 +1384,217 @@ html.dark .tracking-sidebar {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--accent-color);
+}
+
+.tracking-order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.tracking-summary-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.tracking-grand-total {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.tracking-cancel-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 0.6rem;
+  border: 2px solid #d32f2f;
+  color: #d32f2f;
+  background: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.tracking-cancel-btn:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+html.dark .tracking-cancel-btn {
+  border-color: #f87171;
+  color: #f87171;
+}
+
+html.dark .tracking-cancel-btn:hover {
+  background: #f87171;
+  color: #1a1a2e;
+}
+
+.tracking-order-header-clickable {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tracking-order-header-clickable:hover {
+  opacity: 0.8;
+}
+
+.tracking-order-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tracking-order-status {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--soft-color, #f0ece4);
+  color: var(--accent, #8b5a2b);
+  font-weight: 600;
+}
+
+html.dark .tracking-order-status {
+  background: #2a2a3e;
+  color: #c9955b;
+}
+
+.tracking-expand-icon {
+  font-size: 0.7rem;
+  color: var(--text-muted, #999);
+  transition: transform 0.2s;
+}
+
+.tracking-expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.tracking-section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tracking-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 2px 0;
+}
+
+.tracking-summary-row.discount span:last-child {
+  color: #2e7d32;
+}
+
+html.dark .tracking-summary-row.discount span:last-child {
+  color: #66bb6a;
+}
+
+.tracking-summary-row.grand-total {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tracking-summary-row.points span:last-child {
+  color: var(--accent, #8b5a2b);
+  font-weight: 600;
+}
+
+.tracking-summary-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.tracking-coupon-badge {
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--soft-color, #f0ece4);
+  color: var(--accent, #8b5a2b);
+  font-weight: 700;
+  font-family: monospace;
+  direction: ltr;
+}
+
+.tracking-order-info {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.tracking-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 3px 0;
+  color: var(--text-secondary);
+}
+
+.tracking-info-row span:first-child {
+  font-weight: 600;
+}
+
+.cart-login-prompt {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.cart-login-prompt p {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.cart-login-prompt .checkout-btn {
+  width: 100%;
+}
+
+.delivery-fields {
+  padding: 0 1px;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.delivery-fields .auth-field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.delivery-fields .auth-field input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.delivery-fields .auth-field input:focus {
+  outline: none;
+  border-color: var(--accent, #8b5a2b);
 }
